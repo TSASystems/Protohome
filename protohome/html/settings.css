@@ -35,9 +35,8 @@ body {
     white-space: nowrap
 }
 
+#log-in {
 
+ margin: 0 60em;
 
-.card {
-    margin-top: 100%;
 }
-
