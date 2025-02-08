@@ -3,6 +3,16 @@
 		<title>Settings</title>
 	</head>
 	<body>
-		
+		<p> bar:
+		<input id="font" type="range" min="0" step="1" max="100" value="0">
+		<span id="BarSize">0</span></p>
+		<script>
+			const font=document.getElementById('font');
+			const BarSize=document.getElementById('BarSize');
+			font.addEventListener('input',function(){
+				BarSize.textContent=this.value;
+			})
+		</script>
+	
 	</body>
 </html>
