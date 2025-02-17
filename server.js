@@ -30,11 +30,22 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             let reqBody = JSON.parse(body);
             if (reqBody.action === "login") {
-                login(reqBody.username, reqBody.password);
+                let successfulLogin = login(reqBody.username, reqBody.password);
+                if (successfulLogin) {
+                    res.writeHead(200);
+                } else {
+                    res.writeHead(401);
+                }
+                res.end();
             } else if (reqBody.action === "register") {
-                createAccount(reqBody.username, reqBody.password);
+                let successfulRegistration = createAccount(reqBody.username, reqBody.password);
+                if (successfulRegistration) {
+                    res.writeHead(200);
+                } else {
+                    res.writeHead(409);
+                }
+                res.end();
             }
-            res.writeHead(200);
         });
 
     }
@@ -48,13 +59,13 @@ async function createAccount(un, pw) {
         let rows = await connection.query("SELECT true FROM UserCredentials WHERE username = ?;", [un])
         if (rows.length !== 0) {
             console.log("Account already exists");
-            return;
+            return false;
         }
 
-        let salt = crypto.randomBytes(16);
-        console.log(salt);
+        let salt = crypto.randomBytes(8).toString("hex");
         let pwhash = crypto.createHash("sha256").update(pw).update(salt).digest("hex");
         await connection.query("INSERT INTO UserCredentials (username, passwordHash, salt) VALUES (?, ?, ?);", [un, pwhash, salt]);
+        return true;
     } catch(err) {
         console.error(err);
     } finally {
@@ -67,8 +78,7 @@ async function login(un, pw) {
     let salt = "";
     try {
         connection = await pool.getConnection();
-        let rows = await connection.query("SELECT salt FROM UserCredentials WHERE username = ?;", [un])
-        console.log(rows);
+        let rows = await connection.query("SELECT salt FROM UserCredentials WHERE username = ?;", [un]);
         if (rows.length === 0) {
             console.log("User does not exist!");
             return false;
@@ -76,7 +86,6 @@ async function login(un, pw) {
             salt = rows[0].salt;
         }
         let pwhash = crypto.createHash("sha256").update(pw).update(salt).digest("hex");
-        console.log(pwhash);
         rows = await connection.query("SELECT true FROM UserCredentials WHERE username = ? AND passwordHash = ?;", [un, pwhash])
                 
         if (rows.length === 0) {
@@ -90,10 +99,5 @@ async function login(un, pw) {
         console.error(err);
     } finally {
         connection.end();
-        pool.end();
     }
 }
-
-// createAccount();
-
-
