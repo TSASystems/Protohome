@@ -1,7 +1,8 @@
 body {
 
     background-color: #2B3C53;
-    padding-top: 5%;
+  
+    
     }
 
 
@@ -14,7 +15,7 @@ body {
     left : 0;
     width: 100%;
     height: auto;
-    z-index: 1000;
+    z-index: 3000;
     
     
    
@@ -22,16 +23,22 @@ body {
 
 .navbar-brand{
 
-    font-size: 4rem;
+    font-size: 3em;
     color: #2B3C53;
    
     
 }
 
+.custom-text {
+    position: relative;  
+    top: 0.1em;
+    font-size: 1em; 
+}
+
 .nav-item a {
 
     color: #2B3C53;
-    font-size: 1.5rem;
+    font-size: 1.5em;
     margin:  0 2em;
     transition: transform 0.3s ease-in;
     max-width: fit-content;
@@ -40,10 +47,26 @@ body {
 
 .nav-item a:hover {
 
-  transform: scale(1.25);
+    transform: scale(1.25);
+  
+  }
 
+
+.notifications-link {
+
+
+    color: #2B3C53;
+    font-size: 1.5em;
+    transition: transform 0.3s ease-in;
+    max-width: fit-content;
+    
+    
 }
 
+
+.navbar-nav.ms-auto {
+    margin-right: 4em;
+}
 
 
 
@@ -55,6 +78,56 @@ body {
     left: 0; 
     z-index: 2000; 
     margin-top: 0; 
+}
+
+h1{
+    position: relative;
+    color:#ffffff;
+    margin-top: 15%;
+    text-decoration: underline;
+    left: 5%;
+    width: 100%;
+    
+   
+
+
+}
+
+.grid-container {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    row-gap: 5%;
+    margin-top: 2.5%;
+    left: 5%;
+    background-color: #ffffff;
+    padding-left: 2%;
+    padding-right: 2%;
+    padding-top: 2%;
+    padding-bottom: 20%;
+    width: 90%;
+
+    
+    
+}
+
+.grid-item {
+    width:90%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: lightgray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2vw;
+    cursor: pointer;
+    border: 1% solid #aaa;
+    transition: transform 0.3s ease-in;
+}
+
+.grid-item:hover {
+    background-color: #ddd;
+    transform: scale(1.10);
 }
 
 
