@@ -1,9 +1,10 @@
 body {
 
     background-color: #2B3C53;
-  
+    margin-top: 10%;
     
     }
+
 
 
 .container-fluid{
@@ -18,7 +19,14 @@ body {
     z-index: 3000;
     
     
+    
    
+}
+
+
+.navbar {
+    margin: 0;
+    padding: 0;
 }
 
 .navbar-brand{
@@ -80,3 +88,4 @@ body {
     margin-top: 0; 
   
 }
+
