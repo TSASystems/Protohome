@@ -51,3 +51,12 @@ body {
       margin-top: 0; 
 }
 
+.custom-text {
+    position: relative;  
+    top: 0.1em;
+    font-size: 1em; 
+}
+
+.navbar-nav.ms-auto {
+    margin-right: 10em;
+}
