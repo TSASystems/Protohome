@@ -65,7 +65,7 @@ body {
 
 
 .navbar-nav.ms-auto {
-    margin-right: 4em;
+    margin-right: 10em;
 }
 
 
@@ -78,13 +78,14 @@ body {
     left: 0; 
     z-index: 2000; 
     margin-top: 0; 
+  
 }
 
 h1{
     position: relative;
     color:#ffffff;
     margin-top: 15%;
-    text-decoration: underline;
+    
     left: 5%;
     width: 100%;
     
@@ -100,12 +101,13 @@ h1{
     row-gap: 5%;
     margin-top: 2.5%;
     left: 5%;
-    background-color: #ffffff;
+    background-color: lightgray;
     padding-left: 2%;
     padding-right: 2%;
     padding-top: 2%;
     padding-bottom: 20%;
     width: 90%;
+    border-radius: 1em;
 
     
     
@@ -115,7 +117,8 @@ h1{
     width:90%;
     height: 100%;
     aspect-ratio: 1 / 1;
-    background-color: lightgray;
+    background-color:#ffffff;
+    border-radius: 1em;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -126,7 +129,7 @@ h1{
 }
 
 .grid-item:hover {
-    background-color: #ddd;
+    
     transform: scale(1.10);
 }
 
