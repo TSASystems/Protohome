@@ -8,7 +8,7 @@ body {
     position: relative;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 7.5%;
+    top: 10%;
     padding: 3%;
     border-radius: 2.5%;
     display: flex;
@@ -62,8 +62,9 @@ button:hover {
 }
 
 .info-text {
-    margin-top: 10%;
-     color:#2B3C53;
-     font-size: 1.2em;
- 
- }
+   margin-top: 10%;
+    color:#2B3C53;
+    font-size: 1.2em;
+
+}
+
