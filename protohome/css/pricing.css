@@ -1,0 +1,37 @@
+body {
+
+    background-color: #2B3C53;
+    padding-top: 1%;
+    }
+
+    .container-fluid{
+
+        overflow: hidden;
+        background-color: #ffffff;
+        position:fixed; 
+        top: 0;
+        left : 0;
+        width: 100%;
+        height: auto;
+        padding: 1em;
+        
+       
+    }
+    
+    .navbar-brand{
+    
+        font-size: 3rem;
+        font-weight: bold;
+        color: #2B3C53;
+
+       
+        
+    }
+    
+    .nav-item a {
+    
+        color: #2B3C53;
+        font-size: 1.5rem;
+        margin:  0 2em;
+        white-space: nowrap
+    }
