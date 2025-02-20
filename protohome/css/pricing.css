@@ -35,3 +35,12 @@ body {
         margin:  0 2em;
         white-space: nowrap
     }
+
+    h1 {
+        margin-top: 8%;
+        color: #ffffff;
+    }
+
+    .price-list {
+        color: #ffffff;
+    }
