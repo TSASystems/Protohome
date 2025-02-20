@@ -14,15 +14,42 @@
             <label for="email">Email:</label><br>
             <input type="text" id="email" name="email"><br>
             <label for="cardnumber">Card number:</label><br>
-            <input type="text" id="cardnumber" name="cardnumber"><br>
+            <input type="number" id="cardnumber" name="cardnumber"><br>
             <label for="expiry">Expiry date:</label><br>
-            <input type="text" id="expiry" name="expiry"><br>
+            <input type="date" id="expiry" name="expiry"><br>
             <label for="security">Security code:</label><br>
-            <input type="text" id="security" name="security"><br>
+            <input type="password" id="security" name="security"><br>
+
+            <label for="billingAddress">Billing address:</label><br>
+            <input type="text" id="billingAddress" name="billingAddress" placeholder="Street address"><br>
+            <input type="text" id="billingCity" name="billingCity" placeholder="City"><br>
+            <input type="text" id="billingCountry" name="billingCountry" placeholder="Country"><br>
+            <input type="text" id="billingPostcode" name="billingPostcode" placeholder="Post code"><br>
+
+            <label for="paymentOption">Payment option:</label><br>
+            <select id="paymentOption" name="paymentOption" onchange="updateTotal()">
+                <option value="7.99">Personal - £7.99 per month</option>
+                <option value="79.99">Personal - £79.99 per year</option>
+                <option value="5.99">Business - £5.99 per user per month</option>
+                <option value="59.99">Business - £59.99 per user per year</option>
+            </select><br>
+            <label for="total">Total:</label><br>
+            <input type="text" id="total" name="total" readonly><br>
         </form>
 
         <button>Pay now</button>
 
+        <script>
+            function updateTotal() {
+                var paymentOption = document.getElementById("paymentOption");
+                var total = document.getElementById("total");
+                total.value = "£" + paymentOption.value;
+            }
+        </script>
+        <!-- TODO 
+         add options to the dropdown box for business options - 
+         select how many users and make that affect the total price
+        -->
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 	</body>
 </html>
