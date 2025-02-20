@@ -13,14 +13,14 @@ body {
     left : 0;
     width: 100%;
     height: auto;
-    z-index: 1000;
+    z-index: 3000;
     
    
 }
 
 .navbar-brand{
 
-    font-size: 4rem;
+    font-size: 3rem;
     color: #2B3C53;
     
 }
@@ -60,3 +60,4 @@ body {
 .navbar-nav.ms-auto {
     margin-right: 10em;
 }
+
