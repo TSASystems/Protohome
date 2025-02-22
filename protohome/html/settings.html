@@ -64,19 +64,20 @@
 		</nav>
 	  
 		<br><br>
-		<p> <span style="color: #ffffff;">Font size:</span>
-			<input id="font" type="range" min="0" step="1" max="100" value="0">
-			<span id="BarSize" style="color: #ffffff;">0</span></p>
+		<p> <span>Font size:</span><br>
+			<input id="font" type="range" min="12" step="1" max="50" value="16">
+			<span id="FontSize">16</span></p>
 			
-	
 		
 		<script>
 			const font=document.getElementById('font');
-			const BarSize=document.getElementById('BarSize');
+			const FontSize=document.getElementById('FontSize');
 			font.addEventListener('input',function(){
-				BarSize.textContent=this.value;
+				FontSize.textContent=this.value;
 			})
 		</script>
+		
+		<script src = "../js/settings.js"></script>
 
        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 
