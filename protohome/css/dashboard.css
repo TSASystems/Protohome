@@ -156,3 +156,9 @@ h1{
 .device:hover {
     transform: scale(1.10);
 }
+
+.devImg {
+	object-fit : contain;
+	max-height : 70%;
+	max-width : 70%;
+}
