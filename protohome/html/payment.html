@@ -1,55 +1,75 @@
 <html>
-	<head>
-		<title>TSA Systems</title>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link href=".css" rel="stylesheet" type="text/css" />
-	</head>
-	<body>
-        <form>
-            <label for="fname">First name:</label><br>
-            <input type="text" id="fname" name="fname"><br>
-            <label for="lname">Last name:</label><br>
-            <input type="text" id="lname" name="lname"><br>
-            <label for="email">Email:</label><br>
-            <input type="text" id="email" name="email"><br>
-            <label for="cardnumber">Card number:</label><br>
-            <input type="number" id="cardnumber" name="cardnumber"><br>
-            <label for="expiry">Expiry date:</label><br>
-            <input type="date" id="expiry" name="expiry"><br>
-            <label for="security">Security code:</label><br>
-            <input type="password" id="security" name="security"><br>
 
-            <label for="billingAddress">Billing address:</label><br>
-            <input type="text" id="billingAddress" name="billingAddress" placeholder="Street address"><br>
-            <input type="text" id="billingCity" name="billingCity" placeholder="City"><br>
-            <input type="text" id="billingCountry" name="billingCountry" placeholder="Country"><br>
-            <input type="text" id="billingPostcode" name="billingPostcode" placeholder="Post code"><br>
+<head>
+    <title>TSA Systems</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href=".css" rel="stylesheet" type="text/css" />
+</head>
 
-            <label for="paymentOption">Payment option:</label><br>
-            <select id="paymentOption" name="paymentOption" onchange="updateTotal()">
-                <option value="7.99">Personal - £7.99 per month</option>
-                <option value="79.99">Personal - £79.99 per year</option>
-                <option value="5.99">Business - £5.99 per user per month</option>
-                <option value="59.99">Business - £59.99 per user per year</option>
-            </select><br>
-            <label for="total">Total:</label><br>
-            <input type="text" id="total" name="total" readonly><br>
-        </form>
+<body>
+    <form>
+        <label for="fname">First name:</label><br>
+        <input type="text" id="fname" name="fname"><br>
+        <label for="lname">Last name:</label><br>
+        <input type="text" id="lname" name="lname"><br>
+        <label for="email">Email:</label><br>
+        <input type="text" id="email" name="email"><br>
+        <label for="cardnumber">Card number:</label><br>
+        <input type="number" id="cardnumber" name="cardnumber"><br>
+        <label for="expiry">Expiry date:</label><br>
+        <input type="date" id="expiry" name="expiry"><br>
+        <label for="security">Security code:</label><br>
+        <input type="password" id="security" name="security"><br>
 
-        <button>Pay now</button>
+        <label for="billingAddress">Billing address:</label><br>
+        <input type="text" id="billingAddress" name="billingAddress" placeholder="Street address"><br>
+        <input type="text" id="billingCity" name="billingCity" placeholder="City"><br>
+        <input type="text" id="billingCountry" name="billingCountry" placeholder="Country"><br>
+        <input type="text" id="billingPostcode" name="billingPostcode" placeholder="Post code"><br>
 
-        <script>
-            function updateTotal() {
-                var paymentOption = document.getElementById("paymentOption");
-                var total = document.getElementById("total");
-                total.value = "£" + paymentOption.value;
+        <label for="paymentOption">Payment option:</label><br>
+        <select id="paymentOption" name="paymentOption" onchange="updateTotal()">
+            <option value="7.99">Personal - £7.99 per month</option>
+            <option value="79.99">Personal - £79.99 per year</option>
+            <option value="5.99">Business - £5.99 per user per month</option>
+            <option value="59.99">Business - £59.99 per user per year</option>
+        </select><br>
+
+        <label for="numUsers">Number of users (for business plans):</label><br>
+        <input type="number" id="numUsers" name="numUsers" value="1" min="1" onchange="updateTotal()"><br>
+
+        <label for="total">Total:</label><br>
+        <input type="text" id="total" name="total" readonly><br>
+    </form>
+
+    <button>Pay now</button>
+
+    <script>
+        function updateTotal() {
+            var paymentOption = document.getElementById("paymentOption");
+            var numUsers = document.getElementById("numUsers");
+            var total = document.getElementById("total");
+
+            var price = parseFloat(paymentOption.value);
+            var users = parseInt(numUsers.value);
+
+            if (paymentOption.value == "5.99") {
+                total.value = "£" + (price * users).toFixed(2) + " per month";
+            } else if (paymentOption.value == "59.99") {
+                total.value = "£" + (price * users).toFixed(2);
+            } else if (paymentOption.value == "7.99") {
+                total.value = "£" + price.toFixed(2) + " per month";
+            } else {
+                total.value = "£" + price.toFixed(2);
             }
-        </script>
-        <!-- TODO 
-         add options to the dropdown box for business options - 
-         select how many users and make that affect the total price
-        -->
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-	</body>
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+</body>
+
 </html>
