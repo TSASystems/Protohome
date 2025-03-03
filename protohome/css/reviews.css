@@ -35,3 +35,12 @@ body {
         margin:  0 2em;
         white-space: nowrap
     }
+
+    form {
+        margin-top: 7%;
+        color: #ffffff;
+    }
+
+    h1 {
+        color: #ffffff;
+    }
