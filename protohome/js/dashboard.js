@@ -16,4 +16,12 @@ function addDevice() {
     box.innerHTML = "<p>Lamp</p><img src = '../image/Lamp.PNG' alt = 'lamp' class = 'devImg'>";
     box.onclick = function() { grid.removeChild(box); };
     grid.insertBefore(box, grid.lastElementChild);
+	
+	//display add device interface
+	document.getElementById("addDevice").style.display = "block";
+}
+
+//close button
+document.getElementById("close").onclick = function() {
+	document.getElementById("addDevice").style.display = "none";
 }
