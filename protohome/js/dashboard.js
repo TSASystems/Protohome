@@ -21,7 +21,6 @@ function addDevice() {
 	document.getElementById("addDevice").style.display = "block";
 }
 
-//close button
-document.getElementById("close").onclick = function() {
+function closeInterface() {
 	document.getElementById("addDevice").style.display = "none";
 }
