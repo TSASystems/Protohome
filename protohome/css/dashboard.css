@@ -116,7 +116,7 @@ h1{
     
 }
 
-.grid-item {
+.gridItemAddBox {
     width:90%;
     height: 100%;
     aspect-ratio: 1 / 1;
@@ -131,10 +131,68 @@ h1{
     transition: transform 0.3s ease-in;
 }
 
-.grid-item:hover {
+.gridItemAddBox:hover {
     
     transform: scale(1.10);
 }
+
+#deviceModal {
+
+    margin-top: 5%;
+
+  
+}
+
+.modal-content {
+
+}
+
+.modal-content h2 {
+    color:#2B3C53;
+    font-size: 3em;
+}
+
+.modal-dialog {
+
+   max-width: 60%;
+
+}
+
+.modal-body {
+    max-height: 60vh;
+   
+}
+
+.modal-body .row {
+
+    width:200%;
+}
+
+#list-tab {
+    
+    width:100%;
+}
+
+
+
+
+
+
+.modal-body h3 {
+
+    color:#2B3C53;
+    font-size: 2em;
+
+}
+
+.list-group-item {
+    padding: 5%;
+    width: 100%;
+}
+
+
+
+
 
 .device {
 	color: #2B3C53;
