@@ -61,10 +61,133 @@
                  
               
           </div>
-      </div>
+      </div>   
   </nav>
+
+  <h1>Daily Report</h1>
+
+  <div class="container">
+    
+    <div class="chartContainer">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="dailyLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="dailyBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>     
+
+ 
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="dailySavingsContainer">
+                <p>Today's energy usage has cost you</p>
+                <h2>£ 0.00 </h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="highestDailyHourContainer">
+                <p>The highest level of energy consumed was</p>
+                <h2>0 W at 00:00 </h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="lowestDailyHourContainer">
+                <p>The lowest level of energy consumed was</p>
+                <h2>0 W at 00:00 </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+
+<h1>Weekly Report</h1>
+
+
+<div class="container">
+    
+    <div class="chartContainer">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="weeklyLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="weeklyBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>     
+
+ 
+    <div class="row text-center my-4">
+        <div class="col-md-4 my-3">
+            <div class="weeklySavingsContainer">
+                <p> This week's energy usage has cost you</p>
+                <h2>£ 0.00 </h2>
+            </div>
+        </div>
+
+        
+
+        <div class="col-md-4 my-3">
+            <div class="highestWeeklyHourContainer">
+                <p>The day with the highest average energy usage was </p>
+                <h2> Monday at 0 W  </h2>
+            </div>
+        </div>
+
+        
+
+
+        <div class="col-md-4 my-3">
+            <div class="lowestWeeklyHourContainer">
+                <p> The day with the lowest average energy usage was </p>
+                <h2> Monday at 0 W </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
 
 
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script src="../js/energyreport.js"></script>
 	</body>
 </html>

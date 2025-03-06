@@ -1,7 +1,7 @@
 body {
 
     background-color: #2B3C53;
-    margin-top: 10%;
+    margin-top: 15%;
     
     }
 
@@ -85,3 +85,81 @@ body {
     margin-top: 0; 
   
 }
+
+.container {
+    margin-top: 1%;
+    background-color: grey;
+    padding: 5%;
+    border-style: solid;
+    border-width: thick;
+    border-color: #ffffff;
+}
+
+
+
+h1 {
+    font-size: 2.5em;
+    color: #ffffff;
+    margin-left: 17.5%;
+    
+}
+
+#dailyLineChart, #dailyBarChart, #weeklyLineChart, #weeklyBarChart {
+    width:120%;
+   
+}
+
+
+.card {
+
+    transition: transform 0.3s ease-in;
+}
+
+.card:hover {
+
+    transform: scale(1.10);
+
+}
+
+
+
+
+
+.row {
+    width: 100%;
+    margin-top: 2%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    
+   
+    
+}
+
+
+
+.dailySavingsContainer, .highestDailyHourContainer, .lowestDailyHourContainer, .highestWeeklyHourContainer, .lowestWeeklyHourContainer, .weeklySavingsContainer {
+   background-color: #ffffff;
+   width: 100%; 
+   border-radius: 1em;
+   font-size: 1em;
+   transition: transform 0.3s ease-in;
+}
+
+.dailySavingsContainer:hover, .highestDailyHourContainer:hover, .lowestDailyHourContainer:hover, .highestWeeklyHourContainer:hover, .lowestWeeklyHourContainer:hover, .weeklySavingsContainer:hover {
+  
+    transform: scale(1.10);
+ }
+
+
+h2 {
+    font-size: 2em;
+    color: #2B3C53;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+
+
+
