@@ -207,7 +207,7 @@ h1{
     align-items: center;
     justify-content: center;
 	text-align: center;
-    font-size: 2vw;
+    font-size: 1.9vw;
     cursor: pointer;
     border: 1% solid #aaa;
     transition: transform 0.3s ease-in;
