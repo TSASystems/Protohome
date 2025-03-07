@@ -91,9 +91,24 @@ function displayAvailableDevices(id, address, text, target) {
 
 
 
-
-
-
+function addDevice() {
+	//get highlighted button
+	var toAdd = document.getElementsByClassName("list-group-item list-group-item-action active");
+	var name = toAdd[0].innerText;
+	
+    const grid = document.getElementById("grid");
+    const box = document.createElement("div");
+    box.classList.add("device");
+	
+	//concatenate html for box
+	let html = "<p>";
+	html += name;
+	html += "</p><img src = '../image/Lamp.PNG' alt = 'lamp' class = 'devImg'>";
+	
+    box.innerHTML = html;
+    box.onclick = function() { grid.removeChild(box); };
+    grid.insertBefore(box, grid.lastElementChild);
+}
 
 
 
@@ -116,7 +131,7 @@ function displayAvailableDevices(id, address, text, target) {
 
 
 //concept with lamp
-function addDevice() {
+function addDeviceOld() {
 	//get value from text input
 	var name = document.getElementById("name").value;
 	
