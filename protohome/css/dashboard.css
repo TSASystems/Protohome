@@ -160,6 +160,8 @@ h1{
 
 .modal-body {
     max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
    
 }
 
