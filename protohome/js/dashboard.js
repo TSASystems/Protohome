@@ -1,18 +1,11 @@
 //old placeholder function
-function addBox() {
-    const grid = document.getElementById("grid");
-    const box = document.createElement("div");
-    box.classList.add("gridItemAddBox");
-    box.innerText = "Placeholder Text";
-    box.onclick = function() { grid.removeChild(box); };
-    grid.insertBefore(box, grid.lastElementChild);
-}
 
-function closeInterface() {
+
+function closeAddDeviceInterface() {
 	document.getElementById("addDevice").style.display = "none";
 }
 
-function showInterface() {
+function showAddDeviceInterface() {
 
    
 
@@ -72,23 +65,6 @@ function displayAvailableDevices(id, text, target) {
     
     
     
-   
-    
-
-    
- 
-    
- 
-    
-    
-    
-    
-
-
-
-
-
-
 
 
 function addDevice() {
@@ -98,7 +74,7 @@ function addDevice() {
 	
     const grid = document.getElementById("grid");
     const box = document.createElement("div");
-    box.classList.add("device");
+      device = box.classList.add("device");
 	
 	//concatenate html for box
 	let html = "<p>";
@@ -110,9 +86,43 @@ function addDevice() {
 	html += "'>";
 	
     box.innerHTML = html;
-    box.onclick = function() { grid.removeChild(box); };
+    //box.onclick = function() { grid.removeChild(box); };
     grid.insertBefore(box, grid.lastElementChild);
+    box.onclick = showDeviceInfoInterface;
+
 }
+
+ 
+
+
+
+function closeDeviceInfoInterface() {
+	document.getElementById("addDevice").style.display = "none";
+}
+
+
+
+function showDeviceInfoInterface() {
+
+  
+
+    const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
+    deviceInfoModal.show();
+
+
+
+
+  
+   
+    
+
+
+}
+
+
+
+
+
 
 
 

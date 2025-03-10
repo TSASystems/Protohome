@@ -143,9 +143,7 @@ h1{
   
 }
 
-.modal-content {
 
-}
 
 .modal-content h2 {
     color:#2B3C53;
@@ -190,6 +188,12 @@ h1{
 .list-group-item {
     padding: 5%;
     width: 100%;
+}
+
+
+#deviceInfoModal {
+
+    margin-top: 5%;
 }
 
 
