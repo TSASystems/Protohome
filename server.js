@@ -102,6 +102,20 @@ const server = http.createServer((req, res) => {
                 case "/API/addDevice":
                     // TODO: ADD DEVICE TO HOUSEHOLD
                     break;
+                    case "/API/getUserDetails":
+                    getUserDetails(reqBody.userId)
+                    
+                        .then(r => {
+                            if (r) {
+                            res.writeHead(200);
+
+                        } else{
+                            res.writeHead(409);
+                        }
+                        console.log(r)
+                        res.end()
+                    });
+                    break;
                 default:
                     res.writeHead(403);
                     res.end();
@@ -172,6 +186,26 @@ async function getDevicePower(deviceTypeList)
         connection.end();
     }
 }
+
+async function getUserDetails(userId){
+    let connection;
+    try{
+        connection = await pool.getConnection();
+        let rows = await connection.query("SELECT * FROM UserCredentials WHERE userId = ?;", [userId])
+        if (rows.length > 0) {
+            return rows[0];
+        }
+        return null;
+        
+    }catch (err){
+        console.error(err);
+        return null;
+    }finally {
+        connection.end()
+    }
+
+
+}   
 
 /*
 fetch("http://localhost/API/devicePower", {
