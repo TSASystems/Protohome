@@ -109,7 +109,10 @@ function loadDevicesFromLocalStorage() {
         html += "'>";
 
         box.innerHTML = html;
-        box.onclick = function() { grid.removeChild(box); };
+        box.onclick = function() { 
+            grid.removeChild(box); 
+            removeDeviceFromLocalStorage(deviceName);
+        };
         grid.insertBefore(box, grid.lastElementChild);
     });
 }
@@ -134,7 +137,10 @@ function addDevice() {
 	html += "'>";
 	
     box.innerHTML = html;
-    box.onclick = function() { grid.removeChild(box); };
+    box.onclick = function() { 
+        grid.removeChild(box); 
+        removeDeviceFromLocalStorage(name);
+    };
     grid.insertBefore(box, grid.lastElementChild);
 
     // Save to localStorage
@@ -147,7 +153,11 @@ function saveDeviceToLocalStorage(deviceName) {
     localStorage.setItem('devices', JSON.stringify(devices));
 }
 
-
+function removeDeviceFromLocalStorage(deviceName) {
+    let devices = JSON.parse(localStorage.getItem('devices')) || [];
+    devices = devices.filter(device => device !== deviceName);
+    localStorage.setItem('devices', JSON.stringify(devices));
+}
 
 
 
