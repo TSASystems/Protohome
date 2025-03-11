@@ -65,6 +65,50 @@ function displayAvailableDevices(id, text, target) {
     
     
     
+   
+    
+
+    
+ 
+    
+ 
+    
+    
+    
+    
+
+
+
+
+
+  document.addEventListener('DOMContentLoaded', (event) => {
+    loadDevicesFromLocalStorage();
+});
+
+function loadDevicesFromLocalStorage() {
+    let devices = JSON.parse(localStorage.getItem('devices')) || [];
+    devices.forEach(deviceName => {
+        const grid = document.getElementById("grid");
+        const box = document.createElement("div");
+        box.classList.add("device");
+
+        // Concatenate HTML for box
+        let html = "<p>";
+        html += deviceName;
+        html += "</p><img src = '../image/"
+        html += deviceName;
+        html += ".PNG' class = 'devImg' alt='";
+        html += deviceName;
+        html += "'>";
+
+        box.innerHTML = html;
+        box.onclick = function() { 
+            grid.removeChild(box); 
+            removeDeviceFromLocalStorage(deviceName);
+        };
+        grid.insertBefore(box, grid.lastElementChild);
+    });
+}
 
 
 function addDevice() {
@@ -124,15 +168,27 @@ function showDeviceInfoInterface() {
 
 
 
+    box.onclick = function() { 
+        grid.removeChild(box); 
+        removeDeviceFromLocalStorage(name);
+    };
+    grid.insertBefore(box, grid.lastElementChild);
 
+    // Save to localStorage
+    saveDeviceToLocalStorage(name);
+}
 
+function saveDeviceToLocalStorage(deviceName) {
+    let devices = JSON.parse(localStorage.getItem('devices')) || [];
+    devices.push(deviceName);
+    localStorage.setItem('devices', JSON.stringify(devices));
+}
 
-
-
-
-
-
-
+function removeDeviceFromLocalStorage(deviceName) {
+    let devices = JSON.parse(localStorage.getItem('devices')) || [];
+    devices = devices.filter(device => device !== deviceName);
+    localStorage.setItem('devices', JSON.stringify(devices));
+}
 
 
 
