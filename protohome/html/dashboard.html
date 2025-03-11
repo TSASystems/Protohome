@@ -124,45 +124,23 @@
 
 
       
-    <div class="modal fade" id="deviceInfoModal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+      <div class="modal fade" id="deviceInfoModal" tabindex="-1" aria-labelledby="deviceInfoModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h2 class="modal-title" id="ModalLabel">Add a device</h2>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-               <h3> Available Devices </h3>
-
-               <div class="row" >
-                <div class="col-6">
-                    <!-- Devices declared in js are shown here  --> 
-                  <div class="list-group" id="list-tab" role="tablist">
-                 
-
-
-                  </div>
-                </div> 
-                <div class="col-8">
-                    <div class="tab-content" id="nav-tabContent">
-                        <div class="tab-pane fade" id="list-home" role="tabpanel" aria-labelledby="list-home-list">Home content...</div>
-                        <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">Profile content...</div>
-                        <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">Messages content...</div>
-                        <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">Settings content...</div>
-                      </div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="deviceInfoModalLabel">Device Information</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-              </div>
-
-
+                <div class="modal-body" id="deviceInfoModalBody">
+                    <!-- Device info will be inserted here dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary"> Refresh</button>
-			  <button type="button" class="btn btn-primary" onclick="" data-bs-dismiss="modal">Add device</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
+    
 
 
 

@@ -249,3 +249,48 @@ h1{
 	font-weight : bold;
 	cursor : pointer;
 }
+
+
+
+#deviceName img {
+    display:flex;
+    float:left;
+    object-fit : contain;
+	height : 70%;
+	width : 70%;
+}
+
+.device-info-container {
+    display: flex;
+    align-items: center; 
+    justify-content: flex-start;
+    text-align: center;
+    margin-bottom: 20px; 
+}
+
+.image-container {
+    margin-right: 50%; 
+}
+
+.devImg {
+    max-width: 250px;
+    height: auto;
+}
+
+.activeSwitch {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.custom-switch {
+    transform: scale(1.5); 
+    margin-bottom: 5px; 
+}
+
+.fade-text {
+    transition: opacity 3s ease-in-out;
+    color: #2B3C53;
+    font-size: 1em;
+}

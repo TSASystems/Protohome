@@ -144,24 +144,40 @@ function closeDeviceInfoInterface() {
 	document.getElementById("addDevice").style.display = "none";
 }
 
+box.onclick = showDeviceInfoInterface;
 
+function showDeviceInfoInterface(event) {
+    let deviceName = event.currentTarget.querySelector("p").innerText;
+    const modalTitle = document.getElementById("deviceInfoModalLabel");
+    const modalBody = document.getElementById("deviceInfoModalBody");
 
-function showDeviceInfoInterface() {
+    modalTitle.innerText = deviceName;
+    modalBody.innerHTML = `
+        <div class="device-info-container">
+    <img src="../image/${deviceName}.PNG" width="250" height="250" class="devImg" alt="${deviceName}">
+    <div class="activeSwitch form-check form-switch">
+        <input class="form-check-input custom-switch" type="checkbox" role="switch" id="deviceSwitch">
+        <label class="form-check-label" id="switchLabel" for="deviceSwitch">${deviceName} is off</label>
+    </div>
+</div>
+<p>Here you can add device settings and controls.</p>`;
 
   
-
     const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
     deviceInfoModal.show();
 
-
-
-
-  
    
-    
+    const switchInput = document.getElementById("deviceSwitch");
+    const switchLabel = document.getElementById("switchLabel");
 
-
+    if (switchInput && switchLabel) {
+        switchInput.addEventListener("change", () => {
+            toggleSwitchLabel(switchInput, switchLabel, deviceName);
+        });
+    }
 }
+
+
 
 
 
@@ -174,9 +190,9 @@ function showDeviceInfoInterface() {
     };
     grid.insertBefore(box, grid.lastElementChild);
 
-    // Save to localStorage
+ 
     saveDeviceToLocalStorage(name);
-}
+
 
 function saveDeviceToLocalStorage(deviceName) {
     let devices = JSON.parse(localStorage.getItem('devices')) || [];
@@ -191,7 +207,18 @@ function removeDeviceFromLocalStorage(deviceName) {
 }
 
 
+function toggleSwitchLabel(switchElement, labelElement, deviceName) {
+    if (!switchElement || !labelElement) return; 
 
+    labelElement.style.opacity = 0; 
+
+    setTimeout(() => {
+        labelElement.innerText = switchElement.checked 
+            ? `${deviceName} is on` 
+            : `${deviceName} is off`;
+        labelElement.style.opacity = 1;
+    }, 300);
+}
 
 
 
