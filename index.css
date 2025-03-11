@@ -36,11 +36,27 @@ body {
     white-space: nowrap
 }
 
+h1 {
+	font-size: 5rem;
+    color: #2B3C53;
+    margin-top: 8%;
+    text-align: center;
+}
+
+.logo {
+	background : white;
+	padding : 0.5rem;
+}
+
+#protohome {
+	height : 6rem;
+	margin-bottom : 1.5rem;
+}
+
 h2 {
     font-size: 2.5rem;
     font-weight: bold;
     color: #ffffff;
-    margin-top: 8%;
     text-align: center;
 }
 
@@ -66,6 +82,8 @@ h2 {
     gap: 0.5em;
     width: 100%;
     max-width: 1200px;
+	margin-left : auto;
+	margin-right : auto;
 }
 
 .card {
@@ -93,6 +111,11 @@ h2 {
 }
 
 .icon {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
+}
+
+.accessibility {
+	max-width : 150px;
+	max-height : 50px;
 }
