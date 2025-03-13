@@ -261,36 +261,78 @@ h1{
 }
 
 .device-info-container {
-    display: flex;
-    align-items: center; 
-    justify-content: flex-start;
-    text-align: center;
-    margin-bottom: 20px; 
-}
 
-.image-container {
-    margin-right: 50%; 
-}
-
-.devImg {
-    max-width: 250px;
-    height: auto;
-}
-
-.activeSwitch {
-    display: flex;
     flex-direction: column; 
-    justify-content: center;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
+
+   
 }
 
-.custom-switch {
-    transform: scale(1.5); 
-    margin-bottom: 5px; 
+.btnRemove , .btnClose , .btnAdd {
+    background-color: #2B3C53; 
+    border-color: #2B3C53; 
+    color: white; 
 }
 
-.fade-text {
-    transition: opacity 3s ease-in-out;
-    color: #2B3C53;
-    font-size: 1em;
+.btnRemove:hover , .btnClose:hover , .btnAdd:hover  {
+    background-color: #2B3C70; 
+    border-color: #2B3C70;
 }
+
+
+
+
+
+
+
+
+.form-check-input {
+    transform: scale(4); 
+ margin-right: 20%;
+    
+}
+
+/* Custom styles for the switch */
+.form-check-input:checked {
+    background-color: #2B3C53; /* #2B3C53 color when checked */
+    border-color: #2B3C53; /* #2B3C53 border when checked */
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(43, 60, 83, 0.25); /* #2B3C53 with 25% opacity */
+}
+
+
+
+
+.form-switch .form-check-input:checked {
+    background-color: #2B3C53; /* #2B3C53 color when checked */
+    border-color: #2B3C53; /* #2B3C53 border when checked */
+}
+
+
+.form-switch .form-check-input::before {
+    width: 1.5em;
+    height: 1.5em; 
+    background-color: white;
+    border-radius: 50%; 
+    transition: transform 0.3s ease; 
+}
+
+
+
+.fadeText {
+    font-size: 2em;
+}
+
+
+
+
+
+    
+
+   
+ 
+
+

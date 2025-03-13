@@ -95,45 +95,73 @@ function loadDevicesFromLocalStorage() {
         // Concatenate HTML for box
         let html = "<p>";
         html += deviceName;
-        html += "</p><img src = '../image/"
+        html += "</p><img src='../image/";
         html += deviceName;
-        html += ".PNG' class = 'devImg' alt='";
+        html += ".PNG' class='devImg' alt='";
         html += deviceName;
         html += "'>";
 
         box.innerHTML = html;
-        box.onclick = function() { 
-            grid.removeChild(box); 
-            removeDeviceFromLocalStorage(deviceName);
+
+        // Add click event to show device info
+        box.onclick = function (event) {
+            showDeviceInfoInterface(event);
         };
+
+        // Insert the new device before the "+" box
         grid.insertBefore(box, grid.lastElementChild);
     });
 }
 
 
 function addDevice() {
-	//get highlighted button
-	var toAdd = document.getElementsByClassName("list-group-item list-group-item-action active");
-	var name = toAdd[0].innerText.trim();
-	
+    // Get highlighted button
+    var toAdd = document.getElementsByClassName("list-group-item list-group-item-action active");
+    if (toAdd.length === 0) {
+        alert("Please select a device to add.");
+        return;
+    }
+    var name = toAdd[0].innerText.trim();
+
     const grid = document.getElementById("grid");
     const box = document.createElement("div");
-      device = box.classList.add("device");
-	
-	//concatenate html for box
-	let html = "<p>";
-	html += name;
-	html += "</p><img src = '../image/"
-	html += name;
-	html += ".PNG' class = 'devImg' alt='";
-	html += name;
-	html += "'>";
-	
-    box.innerHTML = html;
-    //box.onclick = function() { grid.removeChild(box); };
-    grid.insertBefore(box, grid.lastElementChild);
-    box.onclick = showDeviceInfoInterface;
+    box.classList.add("device");
 
+    // Concatenate HTML for box
+    let html = "<p>";
+    html += name;
+    html += "</p><img src='../image/";
+    html += name;
+    html += ".PNG' class='devImg' alt='";
+    html += name;
+    html += "'>";
+
+    box.innerHTML = html;
+
+  
+    box.onclick = function (event) {
+        showDeviceInfoInterface(event);
+    };
+
+   
+    grid.insertBefore(box, grid.lastElementChild);
+
+   
+    saveDeviceToLocalStorage(name);
+}
+
+
+function removeDevice(box) {
+    if (!box) return; 
+
+ 
+    const deviceName = box.querySelector("p").innerText.trim();
+
+   
+    box.remove();
+
+  
+    removeDeviceFromLocalStorage(deviceName);
 }
 
  
@@ -147,26 +175,56 @@ function closeDeviceInfoInterface() {
 box.onclick = showDeviceInfoInterface;
 
 function showDeviceInfoInterface(event) {
-    let deviceName = event.currentTarget.querySelector("p").innerText;
+    
+    event.stopPropagation();
+
+  
+    const box = event.currentTarget;
+    const deviceName = box.querySelector("p").innerText;
+
+    
     const modalTitle = document.getElementById("deviceInfoModalLabel");
     const modalBody = document.getElementById("deviceInfoModalBody");
 
     modalTitle.innerText = deviceName;
     modalBody.innerHTML = `
-        <div class="device-info-container">
-    <img src="../image/${deviceName}.PNG" width="250" height="250" class="devImg" alt="${deviceName}">
-    <div class="activeSwitch form-check form-switch">
-        <input class="form-check-input custom-switch" type="checkbox" role="switch" id="deviceSwitch">
-        <label class="form-check-label" id="switchLabel" for="deviceSwitch">${deviceName} is off</label>
-    </div>
-</div>
-<p>Here you can add device settings and controls.</p>`;
+       <div class="container">
+            <div class="row align-items-center">
+                <!-- Left Column for Image -->
+                <div class="col-md-4 d-flex ">
+                    <img src="../image/${deviceName}.PNG" class="devImg" alt="${deviceName}">
+                </div>
+                
+                <!-- Right Column for Label, Switch, and Text -->
+                <div class="col-md-8">
+                    <!-- Label -->
+                    <label class="fadeText form-check-label fw-bold mb-5" for="deviceSwitch" id="switchLabel">${deviceName} is off</label>
+                    
+                    <!-- Switch -->
+                    <div class="form-check form-switch ms-5 mb-5">
+                        <input class="form-check-input" type="checkbox" role="switch" id="deviceSwitch">
+                    </div>
+                    
+                    <!-- Additional Text -->
+                    <p class="mt-10">Current Output: </p>
+                </div>
+            </div>
+        </div>`;
+
+  
+    modalBody.setAttribute("data-device-box", box.outerHTML);
 
   
     const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
     deviceInfoModal.show();
 
-   
+    const removeButton = document.querySelector("#deviceInfoModal .btnRemove[onclick='removeDevice()']");
+    removeButton.onclick = function () {
+        removeDevice(box); 
+        deviceInfoModal.hide(); 
+    };
+
+    // Add event listener to the switch
     const switchInput = document.getElementById("deviceSwitch");
     const switchLabel = document.getElementById("switchLabel");
 
@@ -227,7 +285,7 @@ function toggleSwitchLabel(switchElement, labelElement, deviceName) {
 
 
 
-//concept with lamp
+
 function addDeviceOld() {
 	//get value from text input
 	var name = document.getElementById("name").value;

@@ -72,7 +72,7 @@
 		<br>
 		<label for="name">Device name:</label>
 		<input type="text" id="name"><br><br>
-		<button id="add" onclick="addDevice()">Add device</button>
+		<button id="add" onclick="addDevice(div)">Add device</button>
 	</div>
     <div class="grid-container" id="grid">
         <div class="gridItemAddBox" onclick= "showAddDeviceInterface()" title="Add device">+</div>
@@ -113,9 +113,9 @@
 
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary"> Refresh</button>
-			  <button type="button" class="btn btn-primary" onclick="addDevice()" data-bs-dismiss="modal">Add device</button>
+                <button type="button" class="btn btnAdd" onclick="addDevice()" data-bs-dismiss="modal">Add device</button>
+              <button type="button" class="btn btnClose" data-bs-dismiss="modal">Close</button>
+			  
             </div>
           </div>
         </div>
@@ -132,10 +132,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="deviceInfoModalBody">
-                    <!-- Device info will be inserted here dynamically -->
+                    <!-- Info about the device is inserted here via showDeviceInfoInterface() -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btnRemove" onclick="removeDevice()" data-bs-dismiss="modal">Remove Device</button>
+                        <button type="button" class="btn btnClose" data-bs-dismiss="modal">Close</button>
+                    </div>
+                 
                 </div>
             </div>
         </div>
