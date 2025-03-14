@@ -1,21 +1,16 @@
 //old placeholder function
-
+let deviceTypes;
+let deviceNameToID = {};
+let deviceIDToName = {};
+let householdDevices;
 
 function closeAddDeviceInterface() {
 	document.getElementById("addDevice").style.display = "none";
 }
 
 function showAddDeviceInterface() {
-
-   
-
     const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
-
-  
     deviceModal.show();
-    
-
-
 }
 
 function displayAvailableDevices(id, text, target) {
@@ -43,46 +38,10 @@ function displayAvailableDevices(id, text, target) {
     document.getElementById('list-tab').appendChild(button);
   }
 
-  displayAvailableDevices('list-airconditioner-list', 'Air Conditioner', '#list-airconditioner');
-  displayAvailableDevices('list-blender-list', 'Blender', '#list-blender');
-  displayAvailableDevices('list-centralheating-list', 'Central Heating', '#list-centralheating');
-  displayAvailableDevices('list-coffeemaker-list', 'Coffee Maker', '#list-coffeemaker');
-  displayAvailableDevices('list-charger-list', 'Charger', '#list-charger');
-  displayAvailableDevices('list-dishwasher-list', 'Dishwasher', '#list-dishwasher');
-  displayAvailableDevices('list-gameconsole-list', 'Game Console', '#list-gameconsole');
-  displayAvailableDevices('list-hairdryer-list', 'Hair Dryer', '#list-hairdryer');
-  displayAvailableDevices('list-iron-list', 'Iron', '#list-iron');
-  displayAvailableDevices('list-lamp-list', 'Lamp', '#list-lamp');
-  displayAvailableDevices('list-laptop-list', 'Laptop', '#list-laptop');
-  displayAvailableDevices('list-microwave-list', 'Microwave', '#list-microwave');
-  displayAvailableDevices('list-tv-list', 'TV', '#list-tv');
-  displayAvailableDevices('list-tablet-list', 'Desktop', '#list-tablet');
-  displayAvailableDevices('list-toaster-list', 'Toaster', '#list-toaster')
-  displayAvailableDevices('list-vacuumcleaner-list', 'Vacuum Cleaner', '#list-vacuumcleaner');
-  displayAvailableDevices('list-waterheater-list', 'Water Heater', '#list-waterheater');
-  displayAvailableDevices('list-washingmachine-list', 'Washing Machine', '#list-washingmachine');  
-  displayAvailableDevices('list-wifirouter-list', 'Wi-Fi Router', '#list-wifirouter');
-    
-    
-    
-   
-    
-
-    
- 
-    
- 
-    
-    
-    
-    
-
-
-
-
-
-  document.addEventListener('DOMContentLoaded', (event) => {
-    loadDevicesFromLocalStorage();
+document.addEventListener('DOMContentLoaded', (event) => {
+    // loadDevicesFromLocalStorage();
+    getDeviceTypes();
+    getDevicesFromHousehold();
 });
 
 function loadDevicesFromLocalStorage() {
@@ -110,6 +69,133 @@ function loadDevicesFromLocalStorage() {
 
         // Insert the new device before the "+" box
         grid.insertBefore(box, grid.lastElementChild);
+    });
+}
+
+function loadDevices() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = `<div class="gridItemAddBox" onclick="showAddDeviceInterface()" title="Add device">+</div>`
+    
+    householdDevices.forEach(d => {
+        d = JSON.parse(d);
+        const box = document.createElement("div");
+        box.classList.add("device");
+        deviceName = deviceIDToName[d.deviceTypeId];
+        // Concatenate HTML for box
+        let html = "<p>";
+        html += deviceName;
+        html += "</p><img src='../image/";
+        html += deviceName;
+        html += ".PNG' class='devImg' alt='";
+        html += deviceName;
+        html += "'>";
+
+        box.innerHTML = html;
+
+        // Add click event to show device info
+        box.onclick = function (event) {
+            showDeviceInfoInterface(event);
+        };
+
+        // Insert the new device before the "+" box
+        grid.insertBefore(box, grid.lastElementChild);
+    });
+}
+
+function getCookie(name) {
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let cookies = decodedCookie.split(';');
+    for(let i = 0; i < cookies.length; i++) {
+        let c = cookies[i];
+        c.trim();
+        console.log(c);
+        if (c.substring(0, name.length) === name) {
+            return c.substring(name.length+1, c.length);
+        }
+    }
+    return "";
+}
+
+async function getDeviceTypes() {
+    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/getDeviceTypes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({})
+    }).then(r => r.json()
+        .then(dev => {
+            for (let i = 0; i < dev.length; i++) {
+                deviceNameToID[dev[i].deviceTypeName] = dev[i].deviceTypeId;
+                deviceIDToName[dev[i].deviceTypeId] = dev[i].deviceTypeName;
+                let str = dev[i].deviceTypeName.replaceAll(/[ -]/g, "").toLowerCase();
+                displayAvailableDevices(`list-${str}-list`, dev[i].deviceTypeName, `#list-${str}`);
+            }
+            deviceTypes = dev;
+        }));
+}
+
+async function toggleDevice(_deviceId) {
+    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/toggleDevice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({
+            deviceId: _deviceId,
+            householdId: getCookie("householdId")
+        })
+    })
+    getDevicesFromHousehold();
+}
+
+async function getDevicesFromHousehold(name) {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/getHouseholdDevices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ 
+            deviceTypeId: deviceNameToID[name],
+            deviceName: name,
+            householdId: getCookie("householdId")
+        })
+    }).then(r => r.json()
+        .then(dev => {
+            householdDevices = dev
+        }));
+    loadDevices();
+}
+
+async function addDeviceToHousehold(name) {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/addDevice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ 
+            deviceTypeId: deviceNameToID[name],
+            deviceName: name,
+            householdId: getCookie("householdId")
+        })
+    });
+}
+
+async function removeDeviceFromHousehold(name) {
+    let deviceTypeId = deviceNameToID[name];
+    let deviceId = -1;
+    for (let i in householdDevices) {
+        if (JSON.parse(householdDevices[i]).deviceTypeId === deviceTypeId) {
+            deviceId = JSON.parse(householdDevices[i]).deviceId;
+            break;
+        }
+    }
+    if (deviceId === -1)
+        return;
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/removeDevice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ 
+            deviceId: deviceId,
+            householdId: getCookie("householdId")
+        })
     });
 }
 
@@ -146,8 +232,9 @@ function addDevice() {
    
     grid.insertBefore(box, grid.lastElementChild);
 
-   
-    saveDeviceToLocalStorage(name);
+    addDeviceToHousehold(name);
+    getDevicesFromHousehold();
+    //saveDeviceToLocalStorage(name);
 }
 
 
@@ -157,11 +244,10 @@ function removeDevice(box) {
  
     const deviceName = box.querySelector("p").innerText.trim();
 
-   
+    removeDeviceFromHousehold(deviceName);
     box.remove();
-
   
-    removeDeviceFromLocalStorage(deviceName);
+    // removeDeviceFromLocalStorage(deviceName);
 }
 
  
@@ -249,7 +335,7 @@ function showDeviceInfoInterface(event) {
     grid.insertBefore(box, grid.lastElementChild);
 
  
-    saveDeviceToLocalStorage(name);
+    // saveDeviceToLocalStorage(name);
 
 
 function saveDeviceToLocalStorage(deviceName) {
