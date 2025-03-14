@@ -27,7 +27,10 @@ body {
 }
 
 #username-label,
-#password-label {
+#password-label,
+#email-label,
+#dob-label,
+#address-label {
     font-size: 1.5em;
     text-align: center; 
     width: 100%; 
