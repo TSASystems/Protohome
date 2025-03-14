@@ -102,20 +102,6 @@ function loadDevices() {
     });
 }
 
-function getCookie(name) {
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let cookies = decodedCookie.split(';');
-    for(let i = 0; i < cookies.length; i++) {
-        let c = cookies[i];
-        c.trim();
-        console.log(c);
-        if (c.substring(0, name.length) === name) {
-            return c.substring(name.length+1, c.length);
-        }
-    }
-    return "";
-}
-
 async function getDeviceTypes() {
     fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/getDeviceTypes", {
         method: "POST",
@@ -141,7 +127,7 @@ async function toggleDevice(_deviceId) {
         referrerPolicy: "no-referrer",
         body: JSON.stringify({
             deviceId: _deviceId,
-            householdId: getCookie("householdId")
+            householdId: Number(getCookie("householdId"))
         })
     })
     getDevicesFromHousehold();
@@ -333,7 +319,6 @@ function showDeviceInfoInterface(event) {
         removeDeviceFromLocalStorage(name);
     };
     grid.insertBefore(box, grid.lastElementChild);
-
  
     // saveDeviceToLocalStorage(name);
 
