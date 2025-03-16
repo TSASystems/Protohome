@@ -1,7 +1,13 @@
-const http = require("http");
+const https = require("https");
 const mariadb = require("mariadb");
 const crypto = require("crypto");
 const schedule = require("node-schedule");
+const fs = require('fs');
+
+const options = {
+    key: fs.readFileSync("./server.key"),
+    cert: fs.readFileSync("./server.cert")
+};
 
 const pool = mariadb.createPool({
     host: "database-1.cj4yamaa8tq2.eu-west-2.rds.amazonaws.com",
@@ -32,7 +38,7 @@ const job = schedule.scheduleJob('0 0 * * *', () => {
 });
 
 
-const server = http.createServer((req, res) => {
+const server = https.createServer(options, (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS, GET");
     res.setHeader("Access-Control-Allow-Headers", "*");
@@ -196,7 +202,7 @@ const server = http.createServer((req, res) => {
             });
 
     }
-}).listen(80);
+}).listen(443);
 
 async function createAccount(username, password, emailAddress, dob, address, firstName, lastName) {
     let connection;
