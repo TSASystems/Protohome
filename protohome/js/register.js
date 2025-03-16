@@ -10,7 +10,7 @@ async function attemptSignup()
     let cf = $("#confirm-box").val();
     let rememberMe = $("#remember-me-box").is(":checked");
     if (un.length > 0 && pw.length > 0 && pw === cf) {
-        await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/register", {
+        await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             referrerPolicy: "no-referrer",

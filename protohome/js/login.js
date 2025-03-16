@@ -4,7 +4,7 @@ async function attemptLogin()
     let pw = $("#password-box").val();
     let rememberMe = $("#remember-me-box").is(":checked");
     if (un.length > 0 && pw.length > 0) {
-        await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/login", {
+        await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             referrerPolicy: "no-referrer",
