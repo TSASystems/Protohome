@@ -13,11 +13,9 @@ if (savedFontSize) {
 
 fontSlider.addEventListener("input", function() {
     const newSize = this.value + "px";
-
     for (const p of ps) {
         p.style.fontSize = newSize;
     }
-
     localStorage.setItem("fontSize", this.value); 
 	fontSizeDisplay.textContent = this.value;
 });
