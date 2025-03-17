@@ -89,13 +89,14 @@ body {
 h1{
     position: relative;
     color:#ffffff;
-    margin-top: 5%;
-    left: 5%;
+    margin-top: 3%;
+    margin-left: 3%;
     width: 100%;
-    
-   
+}
 
-
+.button-container {
+    margin-left: 3%;
+    margin-top: 1%;
 }
 
 .grid-container {
@@ -123,6 +124,7 @@ h1{
     background-color:#ffffff;
     border-radius: 1em;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 2vw;
