@@ -103,7 +103,7 @@ function loadDevices() {
 }
 
 async function getDeviceTypes() {
-    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/getDeviceTypes", {
+    fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/getDeviceTypes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -121,7 +121,7 @@ async function getDeviceTypes() {
 }
 
 async function toggleDevice(_deviceId) {
-    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/toggleDevice", {
+    fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/toggleDevice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -134,7 +134,7 @@ async function toggleDevice(_deviceId) {
 }
 
 async function getDevicesFromHousehold(name) {
-    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/getHouseholdDevices", {
+    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/getHouseholdDevices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -151,7 +151,7 @@ async function getDevicesFromHousehold(name) {
 }
 
 async function addDeviceToHousehold(name) {
-    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/addDevice", {
+    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/addDevice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -174,7 +174,7 @@ async function removeDeviceFromHousehold(name) {
     }
     if (deviceId === -1)
         return;
-    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/removeDevice", {
+    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/removeDevice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",

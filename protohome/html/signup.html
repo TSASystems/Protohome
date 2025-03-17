@@ -14,6 +14,8 @@
 <body>
    <div class="container">
     <p id="login-text">Sign up</p>
+    <p id="username-taken" style='color: red; display: none'>Username is taken</p>
+    <p id="password-mismatch" style='color: red; display: none'>Passwords don't match</p>
     <label id="username-label" > Enter Username:</label>
     <input type="text" class="textbox-text" id="username-box" name="username"><br><br>
     <label id="email-label">Enter Email Address:</label>
@@ -26,9 +28,12 @@
     <input type="password" class="textbox-text" id="password-box" name="username"><br><br>
     <label  id="password-label">Confirm Password:</label>
     <input type="password" class="textbox-text" id="confirm-box" name="username"><br><br>
+    <label id="remember-me-label">Remember me?</label>
+    <input type="checkbox" id="remember-me-box"><br><br>
     <button onclick="attemptSignup()">Sign Up</button>
 
 
+    <!-- TODO: Add stay logged in box -->
     <div class="info-text">
        <p> Already a registered user?  <a href="login.html">Click here to login!</a></p>
     </div>
@@ -38,5 +43,6 @@
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript" src="../js/register.js"></script>
+    <script type="text/javascript" src="../js/setCookies.js"></script>
 </body>
 </html>

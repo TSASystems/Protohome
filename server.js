@@ -1,7 +1,13 @@
-const http = require("http");
+const https = require("https");
 const mariadb = require("mariadb");
 const crypto = require("crypto");
 const schedule = require("node-schedule");
+const fs = require('fs');
+
+const options = {
+    key: fs.readFileSync("./server.key"),
+    cert: fs.readFileSync("./server.cert")
+};
 
 const pool = mariadb.createPool({
     host: "database-1.cj4yamaa8tq2.eu-west-2.rds.amazonaws.com",
@@ -15,13 +21,24 @@ let authIds = new Map();
 let auths = new Set();
 
 const job = schedule.scheduleJob('0 0 * * *', () => {
-    authIds.forEach((un, v) => {
-        v[1] -= 1;
-    });
+    for (let i of m.keys()) {
+        let subMap = m.get(i);
+        for (let j of subMap.keys()) {
+            let duration = subMap.get(j);
+            if (duration <= 1) {
+                subMap.delete(j);
+                auths.delete(j)
+            } else {
+                subMap.set(j, duration-1);
+            }
+            if (subMap.size === 0)
+                m.delete(i);
+        }
+    }
 });
 
 
-const server = http.createServer((req, res) => {
+const server = https.createServer(options, (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS, GET");
     res.setHeader("Access-Control-Allow-Headers", "*");
@@ -42,25 +59,36 @@ const server = http.createServer((req, res) => {
             switch(req.url) {
                 case "/API/loginWithToken":
                     loginWithToken(reqBody.authId, reqBody.username)
+                        .then(r => {
+                            if (r) {
+                                res.writeHead(200);
+                            } else {
+                                res.writeHead(403);
+                            }
+                        });
                     break;
                 case "/API/login":
                     login(reqBody.emailOrUsername, reqBody.password)
                         .then(r => {
                             if (r) {
-                                res.writeHead(200);
-                                if (reqBody.staySignedIn) {
-                                    let userAuth = crypto.randomBytes(32).toString("hex");
-                                    while (auths.has(userAuth)) {
-                                        userAuth = crypto.randomBytes(32).toString("hex");
+                                getUsername(reqBody.emailOrUsername)
+                                    .then(username => {
+                                    if (username === undefined) {
+                                        res.writeHead(500);
+                                        res.end();
+                                    } else {
+                                        res.writeHead(200);
+                                        createAuthToken(username, (reqBody.staySignedIn)? 30 : 2)
+                                            .then(s => {
+                                                res.write(s); 
+                                                res.end();
+                                            });
                                     }
-                                    authIds.set(crypto.createHash("sha256").update(reqBody.username), [userAuth, 30]);
-                                    auths.add(userAuth);
-                                    res.write(JSON.stringify({sessionToken: userAuth}))
-                                }
+                                });
                             } else {
                                 res.writeHead(401);
+                                res.end();
                             }
-                            res.end();
                         });
                     break;
                 case "/API/register":
@@ -68,15 +96,8 @@ const server = http.createServer((req, res) => {
                         .then(r => {
                             if (r) {
                                 res.writeHead(200);
-                                if (reqBody.staySignedIn) {
-                                    let userAuth = crypto.randomBytes(32).toString("hex");
-                                    while (auths.has(userAuth)) {
-                                        userAuth = crypto.randomBytes(32).toString("hex");
-                                    }
-                                    authIds.set(crypto.createHash("sha256").update(reqBody.username), [userAuth, 30]);
-                                    auths.add(userAuth);
-                                    res.write(JSON.stringify({sessionToken: userAuth}))
-                                }
+                                createAuthToken(reqBody.username, (reqBody.staySignedIn)? 30 : 2)
+                                    .then(s => res.write(JSON.stringify(s)));
                             } else {
                                 res.writeHead(409);
                             }
@@ -102,7 +123,6 @@ const server = http.createServer((req, res) => {
                             } else {
                                 res.writeHead(409);
                             }
-                            // res.write();
                             res.end();
                         });
                     break;
@@ -154,7 +174,6 @@ const server = http.createServer((req, res) => {
                     break;
                 case "/API/getUserDetails":
                     getUserDetails(reqBody.userId)
-                    
                         .then(r => {
                             if (r) {
                             res.writeHead(200);
@@ -162,7 +181,7 @@ const server = http.createServer((req, res) => {
                         } else{
                             res.writeHead(409);
                         }
-                        res.end()
+                        res.end();
                     });
                     break;
                 case "/API/toggleDevice":
@@ -183,13 +202,13 @@ const server = http.createServer((req, res) => {
             });
 
     }
-}).listen(80);
+}).listen(443);
 
 async function createAccount(username, password, emailAddress, dob, address, firstName, lastName) {
     let connection;
     try {
         connection = await pool.getConnection();
-        let rows = await connection.query("SELECT true FROM UserCredentials WHERE username = ?;", [username])
+        let rows = await connection.query("SELECT true FROM UserCredentials WHERE LOWER(username) = ? OR LOWER(emailAddress) = ?;", [username.toLowerCase(), emailAddress.toLowerCase()])
         if (rows.length !== 0)
             return false;
 
@@ -209,23 +228,12 @@ async function login(emailOrUsername, password) {
     emailOrUsername = emailOrUsername.toLowerCase();
     let connection;
     let salt = "";
-    let isUsername = false;
     try {
         connection = await pool.getConnection();
-        let rows = await connection.query("SELECT salt FROM UserCredentials WHERE LOWER(username) = ?;", [emailOrUsername]);
-        if (rows.length === 0) {
-            rows = await connection.query("SELECT salt FROM UserCredentials WHERE LOWER(emailAddress) = ?;", [emailOrUsername]);
-            if (rows.length === 0)
-                return false;
-        } else {
-            isUsername = true;
-        }
+        let rows = await connection.query("SELECT salt FROM UserCredentials WHERE LOWER(username) = ? OR LOWER(emailAddress) = ?;", [emailOrUsername, emailOrUsername]);
         salt = rows[0].salt;
         let passwordHash = crypto.createHash("sha256").update(password).update(salt).digest("hex");
-        if (isUsername)
-            rows = await connection.query("SELECT true FROM UserCredentials WHERE LOWER(username) = ? AND passwordHash = ?;", [emailOrUsername, passwordHash]);
-        else
-            rows = await connection.query("SELECT true FROM UserCredentials WHERE LOWER(emailAddress) = ? AND passwordHash = ?;", [emailOrUsername, passwordHash]);
+        rows = await connection.query("SELECT true FROM UserCredentials WHERE (LOWER(username) = ? OR LOWER(emailAddress) = ?) AND passwordHash = ?;", [emailOrUsername, emailOrUsername, passwordHash]);
 
         return rows.length > 0;
     } catch (err) {
@@ -305,7 +313,7 @@ async function removeDevice(deviceId, householdId) {
     let connection;
     try {
         connection = await pool.getConnection();
-        let res = await connection.query("DELETE FROM Devices WHERE deviceId=? AND householdId=?", [deviceId,householdId]);
+        let res = await connection.query("DELETE FROM Devices WHERE deviceId = ? AND householdId = ?", [deviceId,householdId]);
         return (res.affectedRows > 0);
     } catch (err) {
         console.error(err);
@@ -319,7 +327,7 @@ async function getHouseholdDevices(householdId) {
     let connection;
     try {
         connection = await pool.getConnection();
-        let rows = await connection.query("SELECT deviceId, deviceName, deviceTypeId, status FROM Devices WHERE householdId=?", [householdId]);
+        let rows = await connection.query("SELECT deviceId, deviceName, deviceTypeId, status FROM Devices WHERE householdId = ?", [householdId]);
         let deviceTypeSet = new Set(rows.map(d => d.deviceTypeId));
         let deviceTypes = await connection.query("SELECT deviceTypeId, powerConsumption FROM DeviceTypes");
         let householdDeviceTypes = deviceTypes.filter(d => deviceTypeSet.has(d.deviceTypeId));
@@ -337,19 +345,46 @@ async function getHouseholdDevices(householdId) {
 }
 
 async function toggleDevice(deviceId, householdId) {
-    console.log(householdId);
     let connection;
     try {
         connection = await pool.getConnection();
-        let rows = await connection.query("SELECT status FROM Devices WHERE deviceId = ? AND householdId = ?;", [deviceId, householdId]);
-        if (rows.length <= 0)
-            return false;
         let res = await connection.query("UPDATE Devices SET status = ? WHERE deviceId = ? AND householdId = ?", [(rows[0].status === "on")? "off" : "on", deviceId, householdId]);
-        console.log(res);
-        return true;
+        
+        return res.affectedRows > 0;
     } catch (err) {
         console.error(err);
         return false;
+    } finally {
+        connection.end();
+    }
+}
+
+async function createAuthToken(username, duration) {
+    let hashedUn = crypto.createHash("sha256").update(username).digest("hex");
+    let userAuth = crypto.randomBytes(32).toString("hex");
+    while (auths.has(userAuth)) {
+        userAuth = crypto.randomBytes(32).toString("hex");
+    }
+    if (authIds.has(hashedUn)) {
+        authIds.get(hashedUn).set(userAuth, duration);
+    } else {
+        authIds.set(hashedUn, new Map());
+        authIds.get(hashedUn).set(userAuth, duration);
+    }
+    auths.add(userAuth);
+    return `{"userAuth": "${userAuth}", "username": "${hashedUn}"}`
+}
+
+async function getUsername(emailOrUsername) {
+    emailOrUsername = emailOrUsername.toLowerCase();
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        let rows = await connection.query("SELECT username FROM UserCredentials WHERE LOWER(username) = ? OR LOWER(emailAddress) = ?", [emailOrUsername, emailOrUsername]);
+        return rows[0].username;
+    } catch (err) {
+        console.error(err);
+        return "";
     } finally {
         connection.end();
     }

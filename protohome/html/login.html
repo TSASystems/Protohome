@@ -13,12 +13,14 @@
 
    <div id="login-info" class="container">
     <p id="login-text">Log In</p>
+    <p id="login-failure" style='color: red; display: none'>Username or password is incorrect</p>
     <label id="username-label" > Enter Username:</label>
     <input type="text" class="textbox-text" id="username-box" name="username"><br><br>
     <label  id="password-label">Enter Password:</label>
     <input type="password" class="textbox-text" id="password-box" name="password"><br><br>
+    <label id="remember-me-label">Remember me?</label>
+    <input type="checkbox" id="remember-me-box"><br><br>
     <button onclick="attemptLogin()">Log in</button>
-
     <div class="info-text">
         <p> Don't have an account?  <a href="signup.html">Click here to sign up!</a></p>
      </div>
@@ -27,6 +29,7 @@
 
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
    <script type="text/javascript" src="../js/login.js"></script>
+   <script type="text/javascript" src="../js/setCookies.js"></script>
 
 </body>
 </html>
