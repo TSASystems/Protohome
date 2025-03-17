@@ -32,7 +32,6 @@ const server = http.createServer((req, res) => {
         return res.end();
     }
 
-    console.log("requested!");
     if (req.method === "POST") {
         let body = '';
         req.on('data', (chunk) => {
@@ -41,33 +40,31 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             let reqBody = JSON.parse(body);
             switch(req.url) {
+                case "/API/loginWithToken":
+                    loginWithToken(reqBody.authId, reqBody.username)
+                    break;
                 case "/API/login":
-                    if (userAuth.get(crypto.createHash("sha256").update(reqBody.username)) === reqBody.sessionToken) {
-                        res.writeHead(200);
-                        res.end()
-                    } else {
-                        login(reqBody.username, reqBody.password)
-                            .then(r => {
-                                if (r) {
-                                    res.writeHead(200);
-                                    if (reqBody.staySignedIn) {
-                                        let userAuth = crypto.randomBytes(32).toString("hex");
-                                        while (auths.has(userAuth)) {
-                                            userAuth = crypto.randomBytes(32).toString("hex");
-                                        }
-                                        authIds.set(crypto.createHash("sha256").update(reqBody.username), [userAuth, 30]);
-                                        auths.add(userAuth);
-                                        res.write(JSON.stringify({sessionToken: userAuth}))
+                    login(reqBody.emailOrUsername, reqBody.password)
+                        .then(r => {
+                            if (r) {
+                                res.writeHead(200);
+                                if (reqBody.staySignedIn) {
+                                    let userAuth = crypto.randomBytes(32).toString("hex");
+                                    while (auths.has(userAuth)) {
+                                        userAuth = crypto.randomBytes(32).toString("hex");
                                     }
-                                } else {
-                                    res.writeHead(401);
+                                    authIds.set(crypto.createHash("sha256").update(reqBody.username), [userAuth, 30]);
+                                    auths.add(userAuth);
+                                    res.write(JSON.stringify({sessionToken: userAuth}))
                                 }
-                                res.end();
-                            });
-                    }
+                            } else {
+                                res.writeHead(401);
+                            }
+                            res.end();
+                        });
                     break;
                 case "/API/register":
-                    createAccount(reqBody.username, reqBody.password, reqBody.firstName, reqBody.lastName)
+                    createAccount(reqBody.username, reqBody.password, reqBody.emailAddress, reqBody.dob, reqBody.address, reqBody.firstName, reqBody.lastName)
                         .then(r => {
                             if (r) {
                                 res.writeHead(200);
@@ -86,6 +83,17 @@ const server = http.createServer((req, res) => {
                             res.end();
                         });
                     break;
+                case "/API/deleteAccount":
+                    deleteAccount(reqBody.emailAddress, reqBody.username, reqBody.password)
+                        .then(r => {
+                            if (r) {
+                                res,writeHead(200);
+                            } else {
+                                res.writeHead(409);
+                            }
+                            res.end();
+                        });
+                    break;
                 case "/API/devicePower":
                     getDevicePower(reqBody.deviceTypes)
                         .then(r => {
@@ -94,15 +102,57 @@ const server = http.createServer((req, res) => {
                             } else {
                                 res.writeHead(409);
                             }
-                            console.log(r);
                             // res.write();
                             res.end();
                         });
                     break;
                 case "/API/addDevice":
-                    // TODO: ADD DEVICE TO HOUSEHOLD
+                    addDevice(reqBody.deviceName, reqBody.deviceTypeId, reqBody.householdId)
+                        .then(r => {
+                            if (r) {
+                                res.writeHead(200);
+                            } else {
+                                res.writeHead(500);
+                            }
+                            res.end();
+                        });
                     break;
-                    case "/API/getUserDetails":
+                case "/API/removeDevice":
+                    removeDevice(reqBody.deviceId, reqBody.householdId)
+                        .then(r => {
+                            if (r) {
+                                res.writeHead(200);
+                            } else {
+                                res.writeHead(403);
+                            }
+                            res.end();
+                        });
+                    break;
+                case "/API/getDeviceTypes":
+                    getDeviceTypes()
+                        .then(r => {
+                            if (r.length > 0) {
+                                res.writeHead(200);
+                            } else {
+                                res.writeHead(500);
+                            }
+                            res.write(r);
+                            res.end();
+                        });
+                    break;
+                case "/API/getHouseholdDevices":
+                    getHouseholdDevices(reqBody.householdId)
+                        .then(r => {
+                            if (r.length > 0) {
+                                res.writeHead(200);
+                            } else {
+                                res.writeHead(500);
+                            }
+                            res.write(JSON.stringify(r));
+                            res.end();
+                        });
+                    break;
+                case "/API/getUserDetails":
                     getUserDetails(reqBody.userId)
                     
                         .then(r => {
@@ -112,10 +162,20 @@ const server = http.createServer((req, res) => {
                         } else{
                             res.writeHead(409);
                         }
-                        console.log(r)
                         res.end()
                     });
                     break;
+                case "/API/toggleDevice":
+                    toggleDevice(reqBody.deviceId, reqBody.householdId)
+                        .then(r => {
+                            if (r) {
+                                res.writeHead(200);
+                            } else {
+                                res.writeHead(500);
+                            }
+                            res.end();
+                        });
+                    break;  
                 default:
                     res.writeHead(403);
                     res.end();
@@ -125,7 +185,7 @@ const server = http.createServer((req, res) => {
     }
 }).listen(80);
 
-async function createAccount(username, password, firstName, lastName) {
+async function createAccount(username, password, emailAddress, dob, address, firstName, lastName) {
     let connection;
     try {
         connection = await pool.getConnection();
@@ -135,7 +195,7 @@ async function createAccount(username, password, firstName, lastName) {
 
         let salt = crypto.randomBytes(8).toString("hex");
         let passwordHash = crypto.createHash("sha256").update(password).update(salt).digest("hex");
-        await connection.query("INSERT INTO UserCredentials (username, passwordHash, salt, firstName, lastName) VALUES (?, ?, ?, ?, ?);", [username, passwordHash, salt, firstName, lastName]);
+        await connection.query("INSERT INTO UserCredentials (username, passwordHash, salt, emailAddress, dateOfBirth, address, firstName, lastName) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", [username, passwordHash, salt, emailAddress, dob, address, firstName, lastName]);
         return true;
     } catch(err) {
         console.error(err);
@@ -145,20 +205,28 @@ async function createAccount(username, password, firstName, lastName) {
     }
 }
 
-async function login(username, password) {
+async function login(emailOrUsername, password) {
+    emailOrUsername = emailOrUsername.toLowerCase();
     let connection;
     let salt = "";
+    let isUsername = false;
     try {
         connection = await pool.getConnection();
-        let rows = await connection.query("SELECT salt FROM UserCredentials WHERE username = ?;", [username]);
+        let rows = await connection.query("SELECT salt FROM UserCredentials WHERE LOWER(username) = ?;", [emailOrUsername]);
         if (rows.length === 0) {
-            return false;
+            rows = await connection.query("SELECT salt FROM UserCredentials WHERE LOWER(emailAddress) = ?;", [emailOrUsername]);
+            if (rows.length === 0)
+                return false;
         } else {
-            salt = rows[0].salt;
+            isUsername = true;
         }
+        salt = rows[0].salt;
         let passwordHash = crypto.createHash("sha256").update(password).update(salt).digest("hex");
-        rows = await connection.query("SELECT true FROM UserCredentials WHERE username = ? AND passwordHash = ?;", [username, passwordHash])
-                
+        if (isUsername)
+            rows = await connection.query("SELECT true FROM UserCredentials WHERE LOWER(username) = ? AND passwordHash = ?;", [emailOrUsername, passwordHash]);
+        else
+            rows = await connection.query("SELECT true FROM UserCredentials WHERE LOWER(emailAddress) = ? AND passwordHash = ?;", [emailOrUsername, passwordHash]);
+
         return rows.length > 0;
     } catch (err) {
         console.error(err);
@@ -178,7 +246,7 @@ async function getDevicePower(deviceTypeList)
             let types = new Set(deviceTypeList);
             rows = rows.filter((e) => types.has(e.deviceTypeName))
         }
-        return rows.map(device => `{\"${device.deviceTypeName}\":${device.powerConsumption}}`);
+        return "\""+rows.map(device => `{\"${device.deviceTypeName}\":${device.powerConsumption}}`)+"\"";
     } catch (err) {
         console.error(err);
         return [];
@@ -187,9 +255,9 @@ async function getDevicePower(deviceTypeList)
     }
 }
 
-async function getUserDetails(userId){
+async function getUserDetails(userId) {
     let connection;
-    try{
+    try {
         connection = await pool.getConnection();
         let rows = await connection.query("SELECT * FROM UserCredentials WHERE userId = ?;", [userId])
         if (rows.length > 0) {
@@ -197,21 +265,92 @@ async function getUserDetails(userId){
         }
         return null;
         
-    }catch (err){
+    } catch (err) {
         console.error(err);
         return null;
-    }finally {
+    } finally {
         connection.end()
     }
-
-
 }   
 
-/*
-fetch("http://localhost/API/devicePower", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                deviceTypes: ['TV', 'Microwave']
-            })});
-*/
+async function getDeviceTypes() {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        let rows = await connection.query("SELECT * FROM DeviceTypes;");
+        return JSON.stringify(rows);
+    } catch (err) {
+        console.error(err);
+        return [];
+    } finally {
+        connection.end();
+    }
+}
+
+async function addDevice(deviceName,deviceTypeId,householdId) {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        await connection.query("INSERT INTO Devices (deviceName,deviceTypeId,householdId) VALUES (?,?,?)", [deviceName,deviceTypeId,householdId]);
+        return true;
+    } catch (err) {
+        console.error(err);
+        return false;
+    } finally {
+        connection.end();
+    }
+}
+
+async function removeDevice(deviceId, householdId) {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        let res = await connection.query("DELETE FROM Devices WHERE deviceId=? AND householdId=?", [deviceId,householdId]);
+        return (res.affectedRows > 0);
+    } catch (err) {
+        console.error(err);
+        return false;
+    } finally {
+        connection.end();
+    }
+}
+
+async function getHouseholdDevices(householdId) {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        let rows = await connection.query("SELECT deviceId, deviceName, deviceTypeId, status FROM Devices WHERE householdId=?", [householdId]);
+        let deviceTypeSet = new Set(rows.map(d => d.deviceTypeId));
+        let deviceTypes = await connection.query("SELECT deviceTypeId, powerConsumption FROM DeviceTypes");
+        let householdDeviceTypes = deviceTypes.filter(d => deviceTypeSet.has(d.deviceTypeId));
+        let householdDevicePowers = {};
+        for (let i in householdDeviceTypes) {
+            householdDevicePowers[householdDeviceTypes[i].deviceTypeId] = householdDeviceTypes[i].powerConsumption;
+        }
+        return rows.map(d => `{\"deviceId\" : ${d.deviceId}, \"deviceName\" : \"${d.deviceName}\", \"deviceTypeId\" : ${d.deviceTypeId}, \"powerConsumption\" : ${householdDevicePowers[d.deviceTypeId]}, \"status\": ${(d.status === "on")? true : false}}`);
+    } catch (err) {
+        console.error(err);
+        return [];
+    } finally {
+        connection.end();
+    }
+}
+
+async function toggleDevice(deviceId, householdId) {
+    console.log(householdId);
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        let rows = await connection.query("SELECT status FROM Devices WHERE deviceId = ? AND householdId = ?;", [deviceId, householdId]);
+        if (rows.length <= 0)
+            return false;
+        let res = await connection.query("UPDATE Devices SET status = ? WHERE deviceId = ? AND householdId = ?", [(rows[0].status === "on")? "off" : "on", deviceId, householdId]);
+        console.log(res);
+        return true;
+    } catch (err) {
+        console.error(err);
+        return false;
+    } finally {
+        connection.end();
+    }
+}

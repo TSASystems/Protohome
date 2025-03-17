@@ -89,3 +89,40 @@ p {
 	font-size : 16px;
 	color : white;
 }
+
+h1 {
+    color: #ffffff;
+    margin-left: 2%;
+}
+
+.accountSettingsContainer {
+   
+    margin-left: 2%;
+    display:block;
+    width: 80%;
+    height:auto;
+}
+
+.accountSettingsContainer button {
+
+margin-left: 3%;
+ padding: 1%;
+ width:30%;
+ height:auto;
+ font-size: 2em;
+ font-weight: bold;
+ background-color: #ffffff;
+ color: #2B3C53;
+ transition: transform 0.3s ease-in;
+ 
+
+
+}
+
+.accountSettingsContainer button:hover {
+
+    background-color: lightgrey;
+    color: #2B3C53;
+    transform: scale(1.10);
+  
+  }
