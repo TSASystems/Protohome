@@ -74,7 +74,7 @@
 		<button id="add" onclick="addDevice(div)">Add device</button>
 	</div>
     <div class="grid-container" id="grid">
-        <div class="gridItemAddBox" onclick= "showAddDeviceInterface()" title="Add device" >+</div>
+        <div class="gridItemAddBox" onclick= "showAddDeviceInterface()" title="Add device" aria-label="add device">+</div>
         
     </div>
 
@@ -112,8 +112,8 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btnAdd" onclick="addDevice()" data-bs-dismiss="modal">Add device</button>
-              <button type="button" class="btn btnClose" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btnAdd" onclick="addDevice()" data-bs-dismiss="modal" aria-label="add device">Add device</button>
+              <button type="button" class="btn btnClose" data-bs-dismiss="modal" aria-label="close interface">Close</button>
 			  
             </div>
           </div>
