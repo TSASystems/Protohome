@@ -1,50 +1,6 @@
-
-
-
-// document.addEventListener("DOMContentLoaded", async function () {
-//     const _userId = 26; 
-//     const grid = document.getElementById("grid");
-//     try {
-//     console.log(`Fetching data for userId: ${_userId}`);
-//         const response = await fetch("http://127.0.0.1:80/API/getUserDetails", {
-//             method: "POST",
-//             referrerPolicy: "no-referrer",
-//             headers: {
-//                 "Content-Type": "application/json"
-//             },
-//             body: JSON.stringify({ userId: _userId })
-//         });
-//         const data = await response.json();
-
-//         if (response.ok) {
-//             addUserBox(data.username);
-//             addUsernameToTitle(data.username);
-//         } else {
-//             console.error("Error fetching user details:", data.error);
-//         }
-//     } catch (error) {
-//         console.error("Error:", error);
-//     }
-
-//     addAddUserButton();
-// });
-
-
-// function addAddUserButton() {
-//     const grid = document.getElementById("grid");
-//     const addBox = document.createElement("div");
-//     addBox.classList.add("grid-item", "add-box");
-//     addBox.innerText = "+ Add User";
-//     addBox.onclick = function () {
-//         window.location.href = "signup.html";
-//     };
-//     grid.appendChild(addBox);
-// }
-
 // TODO 
 // Make functions communicate with database
-// Make arrays take in objects
-// Complete switchHousehold
+// Make this page accessible from somewhere
 
 document.getElementById('createHousehold').addEventListener('click', function () {
     window.location.href = 'payment.html';
@@ -58,48 +14,50 @@ document.getElementById('addUser').addEventListener('click', function () {
     }
 });
 
-// Needs to list all available households by household name 
-document.getElementById('switchHousehold').addEventListener('click', function () {
-    const householdName = prompt('Enter the name of the household to switch to:');
-    if (householdName) {
-        // Add logic to switch household
-    }
+document.getElementById('switchHousehold').addEventListener('click', () => {
+    document.getElementById('householdList').innerHTML = households.map(household => `
+        <li class="list-group-item" onclick="switchHousehold('${household.householdID}')">${household.householdName}</li>
+    `).join('');
+    new bootstrap.Modal(document.getElementById('switchHouseholdModal')).show();
 });
 
-// Make these arrays take in objects
+let currentHouseholdID = '1';
 
-// Dummy data for usernames
-const username = ['Declan', 'Mark', 'Andrew'];
-
-// Dummy data for userTypes
-const userTypes = ['Owner', 'Member'];
-
-// Dummy data for household names
-const householdName = ['Household A', 'Household B', 'Household C'];
-
-// Dummy data for householdID
-const householdID = ['1', '2', '3'];
-
+const households = [
+    { householdName: 'Household A', householdID: '1', users: [{ username: 'Declan', userType: 'Owner' }] },
+    { householdName: 'Household B', householdID: '2', users: [{ username: 'Mark', userType: 'Owner' }] },
+    { householdName: 'Household C', householdID: '3', users: [{ username: 'Andrew', userType: 'Owner' }] }
+];
 
 
 function fillUserGrid() {
-    const userGrid = document.getElementById('userGrid');
-    userGrid.innerHTML = username.map(user => `
+    const currentHousehold = households.find(household => household.householdID === currentHouseholdID);
+    document.getElementById('userGrid').innerHTML = currentHousehold.users.map(user => `
         <div class="grid-item">
-            <p>${user}</p>
-            <button class="btn btn-danger btn-sm" onclick="removeUser('${user}')">Remove</button>
+            <p>${user.username} (${user.userType})</p>
+            <button class="btn btn-danger btn-sm" onclick="removeUser('${user.username}')">Remove</button>
         </div>
     `).join('');
 }
 
 function addUserToGrid(name) {
-    username.push(name);
+    const currentHousehold = households.find(household => household.householdID === currentHouseholdID);
+    currentHousehold.users.push({ username: name, userType: 'Member' });
     fillUserGrid();
 }
 
 function removeUser(name) {
-    username.splice(username.indexOf(name), 1);
+    const currentHousehold = households.find(household => household.householdID === currentHouseholdID);
+    const index = currentHousehold.users.findIndex(user => user.username === name);
+    currentHousehold.users.splice(index, 1);
     fillUserGrid();
+}
+
+function switchHousehold(householdID) {
+    currentHouseholdID = householdID;
+    fillUserGrid();
+    const switchHouseholdModal = bootstrap.Modal.getInstance(document.getElementById('switchHouseholdModal'));
+    switchHouseholdModal.hide();
 }
 
 document.addEventListener('DOMContentLoaded', fillUserGrid);
