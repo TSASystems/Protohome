@@ -40,3 +40,19 @@ async function attemptSignup()
         $("#password-mismatch").hide();        
     }
 }
+window.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    
+    const nowDate = `${year}-${month}-${day}`;
+    
+    document.getElementById('dob-box').max = nowDate;//set the max birth date to syetem time
+});
+
+
+
+
+    
