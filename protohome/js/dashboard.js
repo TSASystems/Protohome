@@ -220,14 +220,25 @@ function addDevice() {
     const box = document.createElement("div");
     box.classList.add("device");
 
+    let newname = name;
+    let counter = 1;
+    while(document.getElementById(newname)){
+        newname = `${name}${counter}`;
+        counter++;
+    }
     // Concatenate HTML for box
-    let html = "<p>";
-    html += name;
+    let html = "<p id='"
+    html += newname;
+    html +="'>";
+    html += newname;
     html += "</p><img src='../image/";
     html += name;
     html += ".PNG' class='devImg' alt='";
-    html += name;
-    html += "'>";
+    html += newname;
+    html += "id=";
+    html += newname;
+    html += "'Img><p id='"+newname+"state'>Off</p>";
+
 
     box.innerHTML = html;
 
@@ -283,11 +294,13 @@ function showDeviceInfoInterface(event) {
     const output = deviceStates[deviceId].output || 0;
 
     modalTitle.innerText = deviceName;
+    let Imgname = deviceName.replace(/[0-9]/g, '');
     modalBody.innerHTML = `
        <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-4 d-flex">
-                    <img src="../image/${deviceName}.PNG" class="devImg" alt="${deviceName}">
+                <!-- Left Column for Image -->
+                <div class="col-md-4 d-flex ">
+                    <img src="../image/${Imgname}.PNG" class="devImg" alt="${deviceName}">
                 </div>
                 <div class="col-md-8">
                     <label class="fadeText form-check-label fw-bold mb-5" id="switchLabel">
@@ -356,11 +369,16 @@ function toggleSwitchLabel(switchElement, labelElement, deviceName) {
     if (!switchElement || !labelElement) return; 
 
     labelElement.style.opacity = 0; 
-
+    let statechange = document.getElementById(deviceName+"state");
     setTimeout(() => {
-        labelElement.innerText = switchElement.checked 
-            ? `${deviceName} is on` 
-            : `${deviceName} is off`;
+        if(switchElement.checked==true){
+            labelElement.innerText = `${deviceName} is on`;
+            statechange.innerText = "On";
+        }
+        else{
+            labelElement.innerText = `${deviceName} is off`;
+            statechange.innerText="Off";
+        }
         labelElement.style.opacity = 1;
     }, 300);
 }
