@@ -103,7 +103,7 @@ function loadDevices() {
 }
 
 async function getDeviceTypes() {
-    fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/getDeviceTypes", {
+    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/getDeviceTypes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -121,7 +121,7 @@ async function getDeviceTypes() {
 }
 
 async function toggleDevice(_deviceId) {
-    fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/toggleDevice", {
+    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/toggleDevice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -134,7 +134,7 @@ async function toggleDevice(_deviceId) {
 }
 
 async function getDevicesFromHousehold(name) {
-    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/getHouseholdDevices", {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/getHouseholdDevices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -151,7 +151,7 @@ async function getDevicesFromHousehold(name) {
 }
 
 async function addDeviceToHousehold(name) {
-    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/addDevice", {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/addDevice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -174,7 +174,7 @@ async function removeDeviceFromHousehold(name) {
     }
     if (deviceId === -1)
         return;
-    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/removeDevice", {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/removeDevice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -206,7 +206,7 @@ function addDevice() {
     html += name;
     html += ".PNG' class='devImg' alt='";
     html += name;
-    html += "'>";
+    html += "'><p id='"+name+"state'>Off</p>";
 
     box.innerHTML = html;
 
@@ -340,11 +340,16 @@ function toggleSwitchLabel(switchElement, labelElement, deviceName) {
     if (!switchElement || !labelElement) return; 
 
     labelElement.style.opacity = 0; 
-
+    let statechange = document.getElementById(deviceName+"state");
     setTimeout(() => {
-        labelElement.innerText = switchElement.checked 
-            ? `${deviceName} is on` 
-            : `${deviceName} is off`;
+        if(switchElement.checked==true){
+            labelElement.innerText = `${deviceName} is on`;
+            statechange.innerText = "On";
+        }
+        else{
+            labelElement.innerText = `${deviceName} is off`;
+            statechange.innerText="Off";
+        }
         labelElement.style.opacity = 1;
     }, 300);
 }
