@@ -16,9 +16,8 @@ function deleteCookie(name) {
 }
 
 function loginWithToken() {
-    let token = getCookie("authToken");
+    let token = getCookie("authId");
     let un = getCookie("username");
-    console.log(token)
     if (token === "" || un === "") {
         window.location = "./login.html"
     } else {
@@ -28,14 +27,16 @@ function loginWithToken() {
             referrerPolicy: "no-referrer",
             body: JSON.stringify({
                 username: un,
-                authToken: token
+                authId: token
             })
         }).then(r => {
             if (r.status !== 200) {
-                window.location = "./login.html"
+                deleteCookie("authId");
+                deleteCookie("username");
+                window.location = "./login.html";
             }
         })
     }
 }
 
-//loginWithToken();
+loginWithToken();

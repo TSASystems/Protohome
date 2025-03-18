@@ -14,7 +14,6 @@ function showAddDeviceInterface() {
 }
 
 function displayAvailableDevices(id, text, target) {
-  
     const button = document.createElement('button');
     button.className = 'list-group-item list-group-item-action';
     button.id = id;
@@ -39,48 +38,18 @@ function displayAvailableDevices(id, text, target) {
   }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    // loadDevicesFromLocalStorage();
     getDeviceTypes();
     getDevicesFromHousehold();
 });
 
-function loadDevicesFromLocalStorage() {
-    let devices = JSON.parse(localStorage.getItem('devices')) || [];
-    devices.forEach(deviceName => {
-        const grid = document.getElementById("grid");
-        const box = document.createElement("div");
-        box.classList.add("device");
-
-        // Concatenate HTML for box
-        let html = "<p>";
-        html += deviceName;
-        html += "</p><img src='../image/";
-        html += deviceName;
-        html += ".PNG' class='devImg' alt='";
-        html += deviceName;
-        html += "'>";
-
-        box.innerHTML = html;
-
-        // Add click event to show device info
-        box.onclick = function (event) {
-            showDeviceInfoInterface(event);
-        };
-
-        // Insert the new device before the "+" box
-        grid.insertBefore(box, grid.lastElementChild);
-    });
-}
-
 function loadDevices() {
     const grid = document.getElementById("grid");
-    grid.innerHTML = `<div class="gridItemAddBox" onclick="showAddDeviceInterface()" title="Add device">+</div>`
     
     householdDevices.forEach(d => {
-        d = JSON.parse(d);
-        const box = document.createElement("div");
+        let box = document.createElement("div");
         box.classList.add("device");
         deviceName = deviceIDToName[d.deviceTypeId];
+        box.id = d.deviceId;
         // Concatenate HTML for box
         let html = "<p>";
         html += deviceName;
@@ -103,7 +72,7 @@ function loadDevices() {
 }
 
 async function getDeviceTypes() {
-    fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/getDeviceTypes", {
+    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/getDeviceTypes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -121,20 +90,20 @@ async function getDeviceTypes() {
 }
 
 async function toggleDevice(_deviceId) {
-    fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/toggleDevice", {
+    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/toggleDevice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
         body: JSON.stringify({
             deviceId: _deviceId,
-            householdId: Number(getCookie("householdId"))
+            householdId: getCookie("householdId")
         })
     })
     getDevicesFromHousehold();
 }
 
 async function getDevicesFromHousehold(name) {
-    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/getHouseholdDevices", {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/getHouseholdDevices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -143,15 +112,19 @@ async function getDevicesFromHousehold(name) {
             deviceName: name,
             householdId: getCookie("householdId")
         })
-    }).then(r => r.json()
-        .then(dev => {
-            householdDevices = dev
-        }));
-    loadDevices();
+    }).then(r => {
+        householdDevices = [];
+        document.querySelectorAll(".device").forEach(e => e.remove());
+        r.json()
+            .then(dev => {
+                householdDevices = dev.map(d => JSON.parse(d));
+                loadDevices();
+            })
+    });
 }
 
 async function addDeviceToHousehold(name) {
-    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/addDevice", {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/addDevice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
@@ -163,23 +136,55 @@ async function addDeviceToHousehold(name) {
     });
 }
 
-async function removeDeviceFromHousehold(name) {
-    let deviceTypeId = deviceNameToID[name];
-    let deviceId = -1;
-    for (let i in householdDevices) {
-        if (JSON.parse(householdDevices[i]).deviceTypeId === deviceTypeId) {
-            deviceId = JSON.parse(householdDevices[i]).deviceId;
-            break;
-        }
-    }
-    if (deviceId === -1)
-        return;
-    await fetch("https://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:443/API/removeDevice", {
+async function getHouseholdUsers(name) {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/getHouseholdUsers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
         body: JSON.stringify({ 
-            deviceId: deviceId,
+            username: getCookie("username"),
+            authId: getCookie("authId"),
+            householdId: getCookie("householdId")
+        })
+    });
+}
+
+async function addUserToHousehold(name, _userType) {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/addUserToHousehold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ 
+            username: getCookie("username"),
+            authId: getCookie("authId"),
+            householdId: getCookie("householdId"),
+            targetUser: name,
+            userType: _userType
+        })
+    });
+}
+
+async function removeUserFromHousehold(name) {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/removeUserFromHousehold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ 
+            username: getCookie("username"),
+            authId: getCookie("authId"),
+            householdId: getCookie("householdId"),
+            targetUser: name
+        })
+    });
+}
+
+async function removeDeviceFromHousehold(_deviceId) {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/removeDevice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ 
+            deviceId: _deviceId,
             householdId: getCookie("householdId")
         })
     });
@@ -220,20 +225,17 @@ function addDevice() {
 
     addDeviceToHousehold(name);
     getDevicesFromHousehold();
-    //saveDeviceToLocalStorage(name);
 }
 
 
 function removeDevice(box) {
     if (!box) return; 
 
- 
-    const deviceName = box.querySelector("p").innerText.trim();
+    console.log(box);
+    const deviceId = box.id;
 
-    removeDeviceFromHousehold(deviceName);
+    removeDeviceFromHousehold(deviceId);
     box.remove();
-  
-    // removeDeviceFromLocalStorage(deviceName);
 }
 
  
@@ -303,38 +305,19 @@ function showDeviceInfoInterface(event) {
     if (switchInput && switchLabel) {
         switchInput.addEventListener("change", () => {
             toggleSwitchLabel(switchInput, switchLabel, deviceName);
+            toggleDevice(box.id);
         });
     }
 }
 
 
-
-
-
-
-
-
-    box.onclick = function() { 
-        grid.removeChild(box); 
-        removeDeviceFromLocalStorage(name);
-    };
-    grid.insertBefore(box, grid.lastElementChild);
+    // box.onclick = function() { 
+    //     grid.removeChild(box); 
+    //     removeDeviceFromLocalStorage(name);
+    // };
+    // grid.insertBefore(box, grid.lastElementChild);
  
     // saveDeviceToLocalStorage(name);
-
-
-function saveDeviceToLocalStorage(deviceName) {
-    let devices = JSON.parse(localStorage.getItem('devices')) || [];
-    devices.push(deviceName);
-    localStorage.setItem('devices', JSON.stringify(devices));
-}
-
-function removeDeviceFromLocalStorage(deviceName) {
-    let devices = JSON.parse(localStorage.getItem('devices')) || [];
-    devices = devices.filter(device => device !== deviceName);
-    localStorage.setItem('devices', JSON.stringify(devices));
-}
-
 
 function toggleSwitchLabel(switchElement, labelElement, deviceName) {
     if (!switchElement || !labelElement) return; 
@@ -347,31 +330,4 @@ function toggleSwitchLabel(switchElement, labelElement, deviceName) {
             : `${deviceName} is off`;
         labelElement.style.opacity = 1;
     }, 300);
-}
-
-
-
-
-
-
-
-
-
-function addDeviceOld() {
-	//get value from text input
-	var name = document.getElementById("name").value;
-	
-	closeInterface();
-    const grid = document.getElementById("grid");
-    const box = document.createElement("div");
-    box.classList.add("device");
-	
-	//concatenate html for box
-	let html = "<p>";
-	html += name;
-	html += "</p><img src = '../image/Lamp.PNG' alt = 'lamp' class = 'devImg'>";
-	
-    box.innerHTML = html;
-    box.onclick = function() { grid.removeChild(box); };
-    grid.insertBefore(box, grid.lastElementChild);
 }
