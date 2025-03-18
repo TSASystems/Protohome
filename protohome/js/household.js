@@ -9,8 +9,9 @@ document.getElementById('createHousehold').addEventListener('click', function ()
 document.getElementById('addUser').addEventListener('click', function () {
     const name = prompt('Enter the name of the user to add:');
     if (name) {
+        const userType = prompt('Enter the user type (Member or Owner):', 'Member');
+        addUserToGrid(name, userType || 'Member');
         // Add logic to add user to database
-        addUserToGrid(name);
     }
 });
 
@@ -40,9 +41,9 @@ function fillUserGrid() {
     `).join('');
 }
 
-function addUserToGrid(name) {
+function addUserToGrid(name, userType) {
     const currentHousehold = households.find(household => household.householdID === currentHouseholdID);
-    currentHousehold.users.push({ username: name, userType: 'Member' });
+    currentHousehold.users.push({ username: name, userType});
     fillUserGrid();
 }
 
