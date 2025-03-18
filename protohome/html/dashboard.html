@@ -65,16 +65,9 @@
 
    <h1>Devices</h1>
 
-	<div id="addDevice">
-		<span id="close" title="Close" onclick="closeAddDeviceInterface()">&times;</span>
-		<h2>Add Device</h2>
-		<br>
-		<label for="name">Device name:</label>
-		<input type="text" id="name"><br><br>
-		<button id="add" onclick="addDevice(div)">Add device</button>
-	</div>
+	
     <div class="grid-container" id="grid">
-        <div class="gridItemAddBox" onclick= "showAddDeviceInterface()" title="Add device" aria-label="add device">+</div>
+        <div class="gridItemAddBox" onclick= "showAddDeviceInterface()" title="Add device" >+</div>
         
     </div>
 
@@ -112,8 +105,8 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btnAdd" onclick="addDevice()" data-bs-dismiss="modal" aria-label="add device">Add device</button>
-              <button type="button" class="btn btnClose" data-bs-dismiss="modal" aria-label="close interface">Close</button>
+                <button type="button" class="btn btnAdd" onclick="addDevice()" data-bs-dismiss="modal">Add device </button>
+              <button type="button" class="btn btnClose" data-bs-dismiss="modal">Close</button>
 			  
             </div>
           </div>
@@ -135,7 +128,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="modal-footer">
-                        <button type="button" class="btn btnRemove" onclick="removeDevice()" data-bs-dismiss="modal">Remove Device</button>
+                        <button type="button" class="btn btnRemove" data-bs-dismiss="modal">Remove Device</button>
                         <button type="button" class="btn btnClose" data-bs-dismiss="modal">Close</button>
                     </div>
                  
