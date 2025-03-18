@@ -1,8 +1,11 @@
-//old placeholder function
+// Some global variables
 let deviceTypes;
 let deviceNameToID = {};
 let deviceIDToName = {};
 let householdDevices;
+let totalEnergyOutput = [];
+let deviceStates = JSON.parse(localStorage.getItem("deviceStates")) || {};
+const switchInputs = {};
 
 function closeAddDeviceInterface() {
 	document.getElementById("addDevice").style.display = "none";
@@ -37,10 +40,23 @@ function displayAvailableDevices(id, text, target) {
     document.getElementById('list-tab').appendChild(button);
   }
 
-document.addEventListener('DOMContentLoaded', (event) => {
+  document.addEventListener("DOMContentLoaded", () => {
     getDeviceTypes();
     getDevicesFromHousehold();
+
+    // Restore devices' states
+    Object.keys(deviceStates).forEach(deviceId => {
+        const device = document.getElementById(deviceId);
+        if (device) {
+            const deviceName = device.querySelector("p").innerText;
+            const isOn = deviceStates[deviceId].state === "on";
+            if (isOn) {
+                toggleDeviceState(deviceId, deviceName, { checked: true }, null, null);
+            }
+        }
+    });
 });
+
 
 function loadDevices() {
     const grid = document.getElementById("grid");
@@ -248,67 +264,84 @@ function closeDeviceInfoInterface() {
 
 box.onclick = showDeviceInfoInterface;
 
-function showDeviceInfoInterface(event) {
-    
-    event.stopPropagation();
 
-  
+
+function showDeviceInfoInterface(event) {
+    event.stopPropagation();
     const box = event.currentTarget;
+    const deviceId = box.id;
     const deviceName = box.querySelector("p").innerText;
 
-    
     const modalTitle = document.getElementById("deviceInfoModalLabel");
     const modalBody = document.getElementById("deviceInfoModalBody");
+
+    // Ensure state is properly retrieved
+    if (!deviceStates[deviceId]) {
+        deviceStates[deviceId] = { state: "off", output: 0 }; 
+    }
+    const isOn = deviceStates[deviceId].state === "on";
+    const output = deviceStates[deviceId].output || 0;
 
     modalTitle.innerText = deviceName;
     modalBody.innerHTML = `
        <div class="container">
             <div class="row align-items-center">
-                <!-- Left Column for Image -->
-                <div class="col-md-4 d-flex ">
+                <div class="col-md-4 d-flex">
                     <img src="../image/${deviceName}.PNG" class="devImg" alt="${deviceName}">
                 </div>
-                
-                <!-- Right Column for Label, Switch, and Text -->
                 <div class="col-md-8">
-                    <!-- Label -->
-                    <label class="fadeText form-check-label fw-bold mb-5" for="deviceSwitch" id="switchLabel">${deviceName} is off</label>
-                    
-                    <!-- Switch -->
+                    <label class="fadeText form-check-label fw-bold mb-5" id="switchLabel">
+                        ${deviceName} is ${isOn ? "on" : "off"}
+                    </label>
                     <div class="form-check form-switch ms-5 mb-5">
-                        <input class="form-check-input" type="checkbox" role="switch" id="deviceSwitch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="${deviceId}-${deviceName}Switch"" ${isOn ? "checked" : ""}>
                     </div>
-                    
-                    <!-- Additional Text -->
-                    <p class="mt-10">Current Output: </p>
+                    <p class="mt-10">Current Output: <span id="deviceOutput">${output}W</span></p>
                 </div>
             </div>
         </div>`;
 
-  
-    modalBody.setAttribute("data-device-box", box.outerHTML);
+    // Store the switch input in the global object
+    switchInputs[deviceId] = document.getElementById(`${deviceName}Switch`);
+    const switchLabel = document.getElementById("switchLabel");
+    const outputElement = document.getElementById("deviceOutput");
 
-  
-    const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
-    deviceInfoModal.show();
-
-    const removeButton = document.querySelector("#deviceInfoModal .btnRemove[onclick='removeDevice()']");
-    removeButton.onclick = function () {
-        removeDevice(box); 
-        deviceInfoModal.hide(); 
-    };
 
     // Add event listener to the switch
-    const switchInput = document.getElementById("deviceSwitch");
-    const switchLabel = document.getElementById("switchLabel");
+    switchInputs[deviceId].addEventListener("change", () => {
+        toggleDeviceState(deviceId, deviceName,  switchInputs[deviceId], switchLabel, outputElement);
+    });
 
-    if (switchInput && switchLabel) {
-        switchInput.addEventListener("change", () => {
-            toggleSwitchLabel(switchInput, switchLabel, deviceName);
-            toggleDevice(box.id);
-        });
-    }
+    // Show the modal
+    const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
+    deviceInfoModal.show();
 }
+
+
+function toggleDeviceState(deviceId, deviceName, switchLabel, outputElement) {
+    const isOn =  switchInputs[deviceId].checked;
+
+    // Assign output based on state
+    let output = isOn ? Math.floor(Math.random() * 100) + 10 : 0;
+
+    // Ensure each device has its unique state
+    deviceStates[deviceId] = { state: isOn ? "on" : "off", output: output };
+    localStorage.setItem("deviceStates", JSON.stringify(deviceStates));
+
+    // Update UI with smooth transition
+    switchLabel.style.opacity = 0;
+    setTimeout(() => {
+        switchLabel.innerText = `${deviceName} is ${isOn ? "on" : "off"}`;
+        switchLabel.style.opacity = 1;
+        outputElement.innerText = `${output}W`;
+    }, 300);
+
+    // Send request to server to update state
+    toggleDevice(deviceId);
+}
+
+
+
 
 
     // box.onclick = function() { 
@@ -331,3 +364,4 @@ function toggleSwitchLabel(switchElement, labelElement, deviceName) {
         labelElement.style.opacity = 1;
     }, 300);
 }
+
