@@ -204,14 +204,25 @@ function addDevice() {
     const box = document.createElement("div");
     box.classList.add("device");
 
+    let newname = name;
+    let counter = 1;
+    while(document.getElementById(newname)){
+        newname = `${name}${counter}`;
+        counter++;
+    }
     // Concatenate HTML for box
-    let html = "<p>";
-    html += name;
+    let html = "<p id='"
+    html += newname;
+    html +="'>";
+    html += newname;
     html += "</p><img src='../image/";
     html += name;
     html += ".PNG' class='devImg' alt='";
-    html += name;
-    html += "'><p id='"+name+"state'>Off</p>";
+    html += newname;
+    html += "id=";
+    html += newname;
+    html += "'Img><p id='"+newname+"state'>Off</p>";
+
 
     box.innerHTML = html;
 
@@ -261,12 +272,13 @@ function showDeviceInfoInterface(event) {
     const modalBody = document.getElementById("deviceInfoModalBody");
 
     modalTitle.innerText = deviceName;
+    let Imgname = deviceName.replace(/[0-9]/g, '');
     modalBody.innerHTML = `
        <div class="container">
             <div class="row align-items-center">
                 <!-- Left Column for Image -->
                 <div class="col-md-4 d-flex ">
-                    <img src="../image/${deviceName}.PNG" class="devImg" alt="${deviceName}">
+                    <img src="../image/${Imgname}.PNG" class="devImg" alt="${deviceName}">
                 </div>
                 
                 <!-- Right Column for Label, Switch, and Text -->
