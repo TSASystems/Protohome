@@ -2,7 +2,7 @@
 let deviceTypes;
 let deviceNameToID = {};
 let deviceIDToName = {};
-let householdDevices;
+let householdDevices={};
 
 function closeAddDeviceInterface() {
 	document.getElementById("addDevice").style.display = "none";
@@ -157,7 +157,7 @@ async function getDevicesFromHousehold() {
         document.querySelectorAll(".device").forEach(e => e.remove());
         r.json()
             .then(dev => {
-                householdDevices = dev.map(d => JSON.parse(d));
+                householdDevices = dev;
                 loadDevices();
             })
     });
@@ -270,20 +270,21 @@ function showDeviceInfoInterface(event) {
 
     let status;
 
-    for (let d of householdDevices) {
-        if (d.deviceId == box.id) {
-            status = d.status;
-            break;
-        }
-    }
+    // for (let d of householdDevices) {
+    //     if (d.deviceId == box.id) {
+    //         status = d.status;
+    //         break;
+    //     }
+    // }
 
     modalTitle.innerText = deviceName;
+    let Imgname = deviceName.replace(/[0-9]/ , "");
     modalBody.innerHTML = `
        <div class="container">
             <div class="row align-items-center">
                 <!-- Left Column for Image -->
                 <div class="col-md-4 d-flex ">
-                    <img src="../image/${deviceName}.PNG" class="devImg" alt="${deviceName}">
+                    <img src="../image/${Imgname}.PNG" class="devImg" alt="${deviceName}">
                 </div>
                 
                 <!-- Right Column for Label, Switch, and Text -->
@@ -309,7 +310,7 @@ function showDeviceInfoInterface(event) {
     const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
     deviceInfoModal.show();
 
-    const removeButton = document.querySelector("#deviceInfoModal .btnRemove[onclick='removeDevice()']");
+    const removeButton = document.getElementById("btnRemove");
     removeButton.onclick = function () {
         removeDevice(box); 
         deviceInfoModal.hide(); 
@@ -321,7 +322,7 @@ function showDeviceInfoInterface(event) {
 
     if (switchInput && switchLabel) {
         switchInput.addEventListener("change", () => {
-            toggleSwitchLabel(switchInput, switchLabel, deviceName, box.id);
+            toggleSwitchLabel(switchInput, switchLabel, deviceName);
             toggleDevice(box.id);
         });
     }
@@ -336,20 +337,20 @@ function showDeviceInfoInterface(event) {
  
     // saveDeviceToLocalStorage(name);
 
-function toggleSwitchLabel(switchElement, labelElement, deviceName, deviceId) {
+function toggleSwitchLabel(switchElement, labelElement, deviceName) {
     if (!switchElement || !labelElement) return; 
 
     labelElement.style.opacity = 0; 
 
-    let device;
-    for (let d of householdDevices) {
-        if (d.deviceId == deviceId) {
-            device = d;
-            break;
-        }
-    }
-    console.log(device);
-
+    // let device;
+    // for (let d of householdDevices) {
+    //     if (d.deviceId == deviceId) {
+    //         device = d;
+    //         break;
+    //     }
+    // }
+    // console.log(device);
+    let statechange = document.getElementById(deviceName+"state");
     setTimeout(() => {
         if(switchElement.checked==true){
             labelElement.innerText = `${deviceName} is on`;
