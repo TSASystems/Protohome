@@ -270,12 +270,12 @@ function showDeviceInfoInterface(event) {
 
     let status;
 
-    for (let d of householdDevices) {
-        if (d.deviceId == box.id) {
-            status = d.status;
-            break;
-        }
-    }
+  //  for (let d of householdDevices) {
+    //   if (d.deviceId == box.id) {
+    //      status = d.status;
+   //         break;
+  //    }
+  // }
 
     modalTitle.innerText = deviceName;
     modalBody.innerHTML = `
@@ -309,7 +309,7 @@ function showDeviceInfoInterface(event) {
     const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
     deviceInfoModal.show();
 
-    const removeButton = document.querySelector("#deviceInfoModal .btnRemove[onclick='removeDevice()']");
+    const removeButton = document.querySelector("#deviceInfoModal .btnRemove");
     removeButton.onclick = function () {
         removeDevice(box); 
         deviceInfoModal.hide(); 
