@@ -24,6 +24,14 @@
 							<a class="nav-link active" aria-current="page" href="dashboard.html">
 								<img src="../image/Dashboard.png" width="50" height="50" alt="Dashboard"> Dashboard
 							</a>
+
+
+							<li class="nav-item">
+								<a class="nav-link" href="household.html">
+									<img src="../image/House.png" width="50" height="50" alt="houseHold"> Household
+								</a>
+							</li>
+
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="energyreport.html">
@@ -33,19 +41,25 @@
 						
 						<li class="nav-item">
 							<a class="nav-link" target="_blank" href="https://tsasystems.github.io/Protohome/">
-								<img src="../image/Information.png" width="50" height="50" alt="Settings"> About Us
-	  
+								<img src="../image/Information.png" width="50" height="50" alt="Settings"> About
+	
 							</a>
 						</li>
-	  
+	
 						<li class="nav-item">
 							<a class="nav-link" href="settings.html">
 								<img src="../image/Settings.png" width="50" height="50" alt="Settings"> Settings
 							</a>
 						</li>
+	
 						
 					</ul>
-	  
+	
+	
+	
+	
+	
+	
 						<!-- Dropdown Menu -->
 						 
 						<ul class="navbar-nav ms-auto">
@@ -58,6 +72,8 @@
 								</ul>
 							</li>
 						</ul>
+	
+					   
 					
 				</div>
 			</div>
@@ -100,7 +116,16 @@
 			<br>
 			<br>
 			<br>
-			<button type="button" class="btn btn-light" aria-label="delete account"> Delete Account</button>
+			<div id="account-input" style="display:none;">
+				<label id="username-label" >Enter Username or Email:</label><br>
+				<input type="text" class="textbox-text" id="username-box" name="username"><br><br>
+				<label  id="password-label">Enter Password:</label><br>
+				<input type="password" class="textbox-text" id="password-box" name="password"><br><br>
+				<label  id="confirm-label">Confirm Password:</label><br>
+				<input type="password" class="textbox-text" id="confirm-box" name="password"><br><br>
+				<button id="confirm-delete-account">Delete Account</button>
+			</div>
+			<button type="button" id="delete-account-button" class="btn btn-light" aria-label="delete account"> Delete Account</button>
 
 
 			

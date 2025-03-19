@@ -43,7 +43,7 @@ body {
 .nav-item a {
 
     color: #2B3C53;
-    font-size: 1.5em;
+    font-size: 1.3em;
     margin:  0 2em;
     transition: transform 0.3s ease-in;
     max-width: fit-content;
@@ -324,6 +324,26 @@ h1{
 
 .fadeText {
     font-size: 2em;
+}
+
+#houseHoldButton {
+
+    
+    margin-left: 3%;
+    padding: 1%;
+    width: 30%;
+    height:auto;
+    font-size: 2em;
+    font-weight: bold;
+    background-color: #ffffff;
+    color: #2B3C53;
+    transition: transform 0.3s ease-in;
+
+}
+
+#householdbutton:hover {
+
+    transform: scale(1.10);
 }
 
 

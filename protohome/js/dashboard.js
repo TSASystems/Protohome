@@ -57,7 +57,9 @@ function loadDevices() {
         html += deviceName;
         html += ".PNG' class='devImg' alt='";
         html += deviceName;
-        html += "'>";
+        html += "'><p id='"+deviceName+d.deviceId+"-state'>";
+        html += d.status? "On" : "Off";
+        html += "</p>";
 
         box.innerHTML = html;
 
@@ -89,6 +91,34 @@ async function getDeviceTypes() {
         }));
 }
 
+async function removeSchedule(_deviceId) {
+    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/removeSchedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({
+            deviceId: _deviceId,
+            authId: getCookie("authId"),
+            username: getCookie("username")
+        })
+    })
+}
+
+async function scheduleDevice(_deviceId, _onTime, _offTime) {
+    fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com/API/scheduleDevice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({
+            deviceId: _deviceId,
+            authId: getCookie("authId"),
+            username: getCookie("username"),
+            onTime: _onTime,
+            offTime: _offTime
+        })
+    })
+}
+
 async function toggleDevice(_deviceId) {
     fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/toggleDevice", {
         method: "POST",
@@ -96,21 +126,31 @@ async function toggleDevice(_deviceId) {
         referrerPolicy: "no-referrer",
         body: JSON.stringify({
             deviceId: _deviceId,
-            householdId: getCookie("householdId")
+            householdId: getCookie("householdId"),
+            authId: getCookie("authId"),
+            username: getCookie("username")
         })
-    })
-    getDevicesFromHousehold();
+    }).then(r => {
+        getDevicesFromHousehold();
+        let switchInput = document.getElementById("deviceSwitch");
+        let switchLabel = document.getElementById("switchLabel");
+        toggleSwitchLabel(switchInput, switchLabel, box.querySelector("p").innerText, box.id);
+    });
 }
 
-async function getDevicesFromHousehold(name) {
+async function getDevicesFromHousehold() {
+    let _householdId = getCookie("householdId");
+    if (_householdId === "") {
+        window.location = "./household.html"
+        return;
+    }
+
     await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/getHouseholdDevices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
-        body: JSON.stringify({ 
-            deviceTypeId: deviceNameToID[name],
-            deviceName: name,
-            householdId: getCookie("householdId")
+        body: JSON.stringify({
+            householdId: _householdId
         })
     }).then(r => {
         householdDevices = [];
@@ -132,48 +172,6 @@ async function addDeviceToHousehold(name) {
             deviceTypeId: deviceNameToID[name],
             deviceName: name,
             householdId: getCookie("householdId")
-        })
-    });
-}
-
-async function getHouseholdUsers(name) {
-    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/getHouseholdUsers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify({ 
-            username: getCookie("username"),
-            authId: getCookie("authId"),
-            householdId: getCookie("householdId")
-        })
-    });
-}
-
-async function addUserToHousehold(name, _userType) {
-    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/addUserToHousehold", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify({ 
-            username: getCookie("username"),
-            authId: getCookie("authId"),
-            householdId: getCookie("householdId"),
-            targetUser: name,
-            userType: _userType
-        })
-    });
-}
-
-async function removeUserFromHousehold(name) {
-    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/removeUserFromHousehold", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify({ 
-            username: getCookie("username"),
-            authId: getCookie("authId"),
-            householdId: getCookie("householdId"),
-            targetUser: name
         })
     });
 }
@@ -204,14 +202,24 @@ function addDevice() {
     const box = document.createElement("div");
     box.classList.add("device");
 
+    let newname = name;
+    let counter = 1;
+    while(document.getElementById(newname)){
+        newname = `${name}${counter}`;
+        counter++;
+    }
     // Concatenate HTML for box
-    let html = "<p>";
-    html += name;
+    let html = "<p id='"
+    html += newname;
+    html +="'>";
+    html += newname;
     html += "</p><img src='../image/";
     html += name;
     html += ".PNG' class='devImg' alt='";
-    html += name;
-    html += "'>";
+    html += newname;
+    html += "id=";
+    html += newname;
+    html += "'Img><p id='"+newname+"state'>Off</p>";
 
     box.innerHTML = html;
 
@@ -246,7 +254,7 @@ function closeDeviceInfoInterface() {
 	document.getElementById("addDevice").style.display = "none";
 }
 
-box.onclick = showDeviceInfoInterface;
+// box.onclick = showDeviceInfoInterface;
 
 function showDeviceInfoInterface(event) {
     
@@ -260,6 +268,15 @@ function showDeviceInfoInterface(event) {
     const modalTitle = document.getElementById("deviceInfoModalLabel");
     const modalBody = document.getElementById("deviceInfoModalBody");
 
+    let status;
+
+    for (let d of householdDevices) {
+        if (d.deviceId == box.id) {
+            status = d.status;
+            break;
+        }
+    }
+
     modalTitle.innerText = deviceName;
     modalBody.innerHTML = `
        <div class="container">
@@ -272,11 +289,11 @@ function showDeviceInfoInterface(event) {
                 <!-- Right Column for Label, Switch, and Text -->
                 <div class="col-md-8">
                     <!-- Label -->
-                    <label class="fadeText form-check-label fw-bold mb-5" for="deviceSwitch" id="switchLabel">${deviceName} is off</label>
+                    <label class="fadeText form-check-label fw-bold mb-5" for="deviceSwitch" id="switchLabel">${deviceName} is ${status? "on" : "off"}</label>
                     
                     <!-- Switch -->
                     <div class="form-check form-switch ms-5 mb-5">
-                        <input class="form-check-input" type="checkbox" role="switch" id="deviceSwitch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="deviceSwitch" ${status? "checked" : ""}>
                     </div>
                     
                     <!-- Additional Text -->
@@ -304,7 +321,7 @@ function showDeviceInfoInterface(event) {
 
     if (switchInput && switchLabel) {
         switchInput.addEventListener("change", () => {
-            toggleSwitchLabel(switchInput, switchLabel, deviceName);
+            toggleSwitchLabel(switchInput, switchLabel, deviceName, box.id);
             toggleDevice(box.id);
         });
     }
@@ -319,15 +336,29 @@ function showDeviceInfoInterface(event) {
  
     // saveDeviceToLocalStorage(name);
 
-function toggleSwitchLabel(switchElement, labelElement, deviceName) {
+function toggleSwitchLabel(switchElement, labelElement, deviceName, deviceId) {
     if (!switchElement || !labelElement) return; 
 
     labelElement.style.opacity = 0; 
 
+    let device;
+    for (let d of householdDevices) {
+        if (d.deviceId == deviceId) {
+            device = d;
+            break;
+        }
+    }
+    console.log(device);
+
     setTimeout(() => {
-        labelElement.innerText = switchElement.checked 
-            ? `${deviceName} is on` 
-            : `${deviceName} is off`;
+        if(switchElement.checked==true){
+            labelElement.innerText = `${deviceName} is on`;
+            statechange.innerText = "On";
+        }
+        else{
+            labelElement.innerText = `${deviceName} is off`;
+            statechange.innerText="Off";
+        }
         labelElement.style.opacity = 1;
     }, 300);
 }
