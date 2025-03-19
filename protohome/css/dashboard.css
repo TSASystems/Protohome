@@ -326,6 +326,26 @@ h1{
     font-size: 2em;
 }
 
+#houseHoldButton {
+
+    
+    margin-left: 3%;
+    padding: 1%;
+    width: 30%;
+    height:auto;
+    font-size: 2em;
+    font-weight: bold;
+    background-color: #ffffff;
+    color: #2B3C53;
+    transition: transform 0.3s ease-in;
+
+}
+
+#householdbutton:hover {
+
+    transform: scale(1.10);
+}
+
 
 
 
