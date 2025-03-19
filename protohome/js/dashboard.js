@@ -202,14 +202,24 @@ function addDevice() {
     const box = document.createElement("div");
     box.classList.add("device");
 
+    let newname = name;
+    let counter = 1;
+    while(document.getElementById(newname)){
+        newname = `${name}${counter}`;
+        counter++;
+    }
     // Concatenate HTML for box
-    let html = "<p>";
-    html += name;
+    let html = "<p id='"
+    html += newname;
+    html +="'>";
+    html += newname;
     html += "</p><img src='../image/";
     html += name;
     html += ".PNG' class='devImg' alt='";
-    html += name;
-    html += "'>";
+    html += newname;
+    html += "id=";
+    html += newname;
+    html += "'Img><p id='"+newname+"state'>Off</p>";
 
     box.innerHTML = html;
 
@@ -341,9 +351,14 @@ function toggleSwitchLabel(switchElement, labelElement, deviceName, deviceId) {
     console.log(device);
 
     setTimeout(() => {
-        labelElement.innerText = device.status
-            ? `${deviceName} is on` 
-            : `${deviceName} is off`;
+        if(switchElement.checked==true){
+            labelElement.innerText = `${deviceName} is on`;
+            statechange.innerText = "On";
+        }
+        else{
+            labelElement.innerText = `${deviceName} is off`;
+            statechange.innerText="Off";
+        }
         labelElement.style.opacity = 1;
     }, 300);
 }
