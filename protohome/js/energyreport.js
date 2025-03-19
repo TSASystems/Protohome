@@ -119,8 +119,7 @@ window.addEventListener("resize", function() {
 });
 
 
-let dailySavings = (Math.random() * (0.90 - 0.30) + 0.30).toFixed(2)
-dailySavings = parseFloat(dailySavings);
+let dailySavings = (Math.random() * 2 + 1).toFixed(2); 
 
 
 var dailySavingsText = document.querySelector(".dailyEnergySavedContainer h2");
@@ -139,7 +138,7 @@ var weeklyRandomData = Array.from({ length: 7 }, () => Math.floor(Math.random() 
 
 let weeklyCostText = document.querySelector(".weeklySavingsContainer h2");
   weeklyCost = dailyCost * 7 ;
-  weeklyCost = parseFloat(weeklyCost);
+
   weeklyCost = weeklyCost.toFixed(2);
 
 weeklyCostText.textContent =( " £ " + weeklyCost);
@@ -256,7 +255,7 @@ if (lowestWeeklyUsageText) {
 
 let weeklySavings = (dailySavings * 7).toFixed(2);
 
-weeklySavings = parseFloat(weeklySavings);
+
 
 
 var weeklySavingsText = document.querySelector(".weeklyEnergySavedContainer h2");
