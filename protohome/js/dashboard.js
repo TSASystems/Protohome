@@ -202,6 +202,7 @@ function addDevice() {
     const box = document.createElement("div");
     box.classList.add("device");
 
+    // Check if device name already exists, and a number after it. Like lamp1, lamp2
     let newname = name;
     let counter = 1;
     while(document.getElementById(newname)){
@@ -298,7 +299,7 @@ function showDeviceInfoInterface(event) {
                     </div>
                     
                     <!-- Additional Text -->
-                    <p class="mt-10">Current Output: </p>
+                    
                 </div>
             </div>
         </div>`;
@@ -306,7 +307,13 @@ function showDeviceInfoInterface(event) {
   
     modalBody.setAttribute("data-device-box", box.outerHTML);
 
-  
+    //set the initial state of the switch when the device is on
+    if(document.getElementById(deviceName+"state").innerText=="On"){
+        document.getElementById("switchLabel").innerText = `${deviceName} is on`;
+        document.getElementById("deviceSwitch").checked=true;
+    }
+
+
     const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
     deviceInfoModal.show();
 
@@ -319,6 +326,9 @@ function showDeviceInfoInterface(event) {
     // Add event listener to the switch
     const switchInput = document.getElementById("deviceSwitch");
     const switchLabel = document.getElementById("switchLabel");
+
+    
+    
 
     if (switchInput && switchLabel) {
         switchInput.addEventListener("change", () => {
