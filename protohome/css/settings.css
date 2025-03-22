@@ -2,23 +2,27 @@ body {
 
     background-color: #2B3C53;
     margin-top: 10%;
-  
+    
     }
 
-.container-fluid{ 
 
 
+.container-fluid{
+
+    
     background-color: #ffffff;
     position:fixed; 
     top: 0;
     left : 0;
     width: 100%;
     height: auto;
-    z-index: 3000;  
-
-
-
+    z-index: 3000;
+    
+    
+    
+   
 }
+
 
 .navbar {
     margin: 0;
@@ -26,8 +30,11 @@ body {
 }
 
 .navbar-brand{
+
     font-size: 3em;
     color: #2B3C53;
+   
+    
 }
 
 .custom-text {
@@ -36,35 +43,50 @@ body {
     font-size: 1em; 
 }
 
-.nav-item a { 
+.nav-item a {
+
     color: #2B3C53;
-    font-size: 1.3em;
+    font-size: 1.5em;
     margin:  0 2em;
     transition: transform 0.3s ease-in;
     max-width: fit-content;
+   
 }
 
 .nav-item a:hover {
+
     transform: scale(1.25);
+  
   }
 
+
 .notifications-link {
+
+
     color: #2B3C53;
     font-size: 1.5em;
     transition: transform 0.3s ease-in;
-    max-width: fit-content;  
+    max-width: fit-content;
+    
+    
 }
+
 
 .navbar-nav.ms-auto {
     margin-right: 10em;
 }
 
+
+
+
 .dropdown-menu {
+
     position: absolute;
     top: 100%; 
     left: 0; 
     z-index: 2000; 
     margin-top: 0; 
+  
 }
 
 input[type=range] {
@@ -89,40 +111,3 @@ p {
 	font-size : 16px;
 	color : white;
 }
-
-h1 {
-    color: #ffffff;
-    margin-left: 2%;
-}
-
-.accountSettingsContainer {
-   
-    margin-left: 2%;
-    display:block;
-    width: 80%;
-    height:auto;
-}
-
-.accountSettingsContainer button {
-
-margin-left: 3%;
- padding: 1%;
- width:30%;
- height:auto;
- font-size: 2em;
- font-weight: bold;
- background-color: #ffffff;
- color: #2B3C53;
- transition: transform 0.3s ease-in;
- 
-
-
-}
-
-.accountSettingsContainer button:hover {
-
-    background-color: lightgrey;
-    color: #2B3C53;
-    transform: scale(1.10);
-  
-  }

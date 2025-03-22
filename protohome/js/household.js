@@ -122,5 +122,5 @@ async function createHousehold(name) {
             authId: getCookie("authId"),
             householdName: name
         })
-    });
+    }).then(r => window.location.reload());
 }

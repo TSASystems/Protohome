@@ -1,3 +1,20 @@
+function getCookie(name) {
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let cookies = decodedCookie.split('; ');
+    for(let c of cookies) {
+        if (c.substring(0, name.length) === name) {
+            return c.substring(name.length+1, c.length);
+        }
+    }
+    return "";
+}
+
+function deleteCookie(name) {
+    let val = getCookie(name);
+    if (name !== "" && val !== "")
+        document.cookie = `${name}=${val}; expires=${new Date(0).toGMTString()}; path=/`;
+}
+
 async function attemptSignup()
 {
     let un = $("#username-box").val();
@@ -25,15 +42,17 @@ async function attemptSignup()
                 stayLoggedIn: rememberMe
             }),
         }).then(res => {
-            if (res.status === 409) {
+            if (res.status === 200) {
+                res.json().then(r => {
+                    // deleteCookie("authId");
+                    // deleteCookie("username");
+                    // createCookie(r.username, r.userAuth, (rememberMe)? 30 : 2);
+                    window.location = "./login.html"
+                });
+            } else {
                 $("#username-taken").show();
                 $("#password-mismatch").hide();
-            } else if (res.status === 200) {
-                res.json().then(r => {
-                    createCookie(r.username, r.userAuth, (rememberMe)? 30 : 2);
-                    window.location = "./dashboard.html"
-                });
-            }
+            } 
         });
     } else {
         $("#username-taken").show();

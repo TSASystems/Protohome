@@ -12,7 +12,7 @@ function getCookie(name) {
 function deleteCookie(name) {
     let val = getCookie(name);
     if (name !== "" && val !== "")
-        document.cookie = `${name}=${val}; Expires=${new Date(0).toGMTString()}`;
+        document.cookie = `${name}=${val}; expires=${new Date(0).toGMTString()}; path=/`;
 }
 
 function loginWithToken() {

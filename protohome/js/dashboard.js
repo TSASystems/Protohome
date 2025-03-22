@@ -2,7 +2,8 @@
 let deviceTypes;
 let deviceNameToID = {};
 let deviceIDToName = {};
-let householdDevices={};
+let householdDevices;
+let households = [];
 
 function closeAddDeviceInterface() {
 	document.getElementById("addDevice").style.display = "none";
@@ -40,6 +41,7 @@ function displayAvailableDevices(id, text, target) {
 document.addEventListener('DOMContentLoaded', (event) => {
     getDeviceTypes();
     getDevicesFromHousehold();
+    getHouseholds();
 });
 
 function loadDevices() {
@@ -131,17 +133,28 @@ async function toggleDevice(_deviceId) {
             username: getCookie("username")
         })
     }).then(r => {
-        getDevicesFromHousehold();
         let switchInput = document.getElementById("deviceSwitch");
         let switchLabel = document.getElementById("switchLabel");
-        toggleSwitchLabel(switchInput, switchLabel, box.querySelector("p").innerText, box.id);
+        let device;
+        for (let d of householdDevices) {
+            if (d.deviceId == _deviceId) {
+                device = d;
+                break;
+            }
+        }
+        device.status = !device.status;
+        let deviceBox = document.getElementById(`${_deviceId}`);
+        let deviceType = deviceBox.querySelector("p").innerText;
+        document.getElementById(`${deviceType}${_deviceId}-state`).innerHTML = device.status? "On" : "Off";
+        toggleSwitchLabel(switchInput, switchLabel, deviceType, _deviceId);
     });
 }
+
+document.getElementById("houseHoldButton").addEventListener("click", chooseHousehold);
 
 async function getDevicesFromHousehold() {
     let _householdId = getCookie("householdId");
     if (_householdId === "") {
-        window.location = "./household.html"
         return;
     }
 
@@ -150,14 +163,16 @@ async function getDevicesFromHousehold() {
         headers: { "Content-Type": "application/json" },
         referrerPolicy: "no-referrer",
         body: JSON.stringify({
-            householdId: _householdId
+            householdId: _householdId, 
+            authId: getCookie("authId"),
+            username: getCookie("username")
         })
     }).then(r => {
         householdDevices = [];
         document.querySelectorAll(".device").forEach(e => e.remove());
         r.json()
             .then(dev => {
-                householdDevices = dev;
+                householdDevices = dev.map(d => JSON.parse(d));
                 loadDevices();
             })
     });
@@ -173,7 +188,7 @@ async function addDeviceToHousehold(name) {
             deviceName: name,
             householdId: getCookie("householdId")
         })
-    });
+    }).then(r => window.location.reload());
 }
 
 async function removeDeviceFromHousehold(_deviceId) {
@@ -188,9 +203,41 @@ async function removeDeviceFromHousehold(_deviceId) {
     });
 }
 
+function switchHousehold(_householdId) {
+    document.cookie = "householdId="+_householdId+"; path=/";
+    const switchHouseholdModal = bootstrap.Modal.getInstance(document.getElementById('switchHouseholdModal'));
+    switchHouseholdModal.hide();
+    window.location.reload();
+}
+
+function chooseHousehold() {
+    document.getElementById('householdList').innerHTML = households.map(household => `
+        <li class="list-group-item" onclick="switchHousehold('${household.householdId}')">${household.householdName}</li>
+    `).join('');
+    new bootstrap.Modal(document.getElementById('switchHouseholdModal')).show();
+}
+
+async function getHouseholds() {
+    await fetch("http://ec2-18-175-157-74.eu-west-2.compute.amazonaws.com:80/API/getHouseholds", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({
+            authId: getCookie("authId"),
+            username: getCookie("username")
+        })
+    }).then(r => r.json().then(s => {
+        households = s;
+        let _householdId = getCookie("householdId");
+        if (_householdId === "")
+            chooseHousehold();
+    }));
+}
+
 
 function addDevice() {
     // Get highlighted button
+    console.log("here");
     var toAdd = document.getElementsByClassName("list-group-item list-group-item-action active");
     if (toAdd.length === 0) {
         alert("Please select a device to add.");
@@ -202,25 +249,14 @@ function addDevice() {
     const box = document.createElement("div");
     box.classList.add("device");
 
-    // Check if device name already exists, and a number after it. Like lamp1, lamp2
-    let newname = name;
-    let counter = 1;
-    while(document.getElementById(newname)){
-        newname = `${name}${counter}`;
-        counter++;
-    }
     // Concatenate HTML for box
-    let html = "<p id='"
-    html += newname;
-    html +="'>";
-    html += newname;
+    let html = "<p>";
+    html += name;
     html += "</p><img src='../image/";
     html += name;
     html += ".PNG' class='devImg' alt='";
-    html += newname;
-    html += "id=";
-    html += newname;
-    html += "'Img><p id='"+newname+"state'>Off</p>";
+    html += name;
+    html += "'>";
 
     box.innerHTML = html;
 
@@ -233,7 +269,6 @@ function addDevice() {
     grid.insertBefore(box, grid.lastElementChild);
 
     addDeviceToHousehold(name);
-    getDevicesFromHousehold();
 }
 
 
@@ -271,21 +306,20 @@ function showDeviceInfoInterface(event) {
 
     let status;
 
-    // for (let d of householdDevices) {
-    //     if (d.deviceId == box.id) {
-    //         status = d.status;
-    //         break;
-    //     }
-    // }
+    for (let d of householdDevices) {
+        if (d.deviceId == box.id) {
+            status = d.status;
+            break;
+        }
+    }
 
     modalTitle.innerText = deviceName;
-    let Imgname = deviceName.replace(/[0-9]/ , "");
     modalBody.innerHTML = `
        <div class="container">
             <div class="row align-items-center">
                 <!-- Left Column for Image -->
                 <div class="col-md-4 d-flex ">
-                    <img src="../image/${Imgname}.PNG" class="devImg" alt="${deviceName}">
+                    <img src="../image/${deviceName}.PNG" class="devImg" alt="${deviceName}">
                 </div>
                 
                 <!-- Right Column for Label, Switch, and Text -->
@@ -299,7 +333,7 @@ function showDeviceInfoInterface(event) {
                     </div>
                     
                     <!-- Additional Text -->
-                    
+                    <p class="mt-10">Current Output: </p>
                 </div>
             </div>
         </div>`;
@@ -307,17 +341,11 @@ function showDeviceInfoInterface(event) {
   
     modalBody.setAttribute("data-device-box", box.outerHTML);
 
-    //set the initial state of the switch when the device is on
-    if(document.getElementById(deviceName+"state").innerText=="On"){
-        document.getElementById("switchLabel").innerText = `${deviceName} is on`;
-        document.getElementById("deviceSwitch").checked=true;
-    }
-
-
+  
     const deviceInfoModal = new bootstrap.Modal(document.getElementById('deviceInfoModal'));
     deviceInfoModal.show();
 
-    const removeButton = document.getElementById("btnRemove");
+    const removeButton = document.getElementById("removeButton"); //document.querySelector("#deviceInfoModal .btnRemove[onclick='removeDevice()']");
     removeButton.onclick = function () {
         removeDevice(box); 
         deviceInfoModal.hide(); 
@@ -327,49 +355,29 @@ function showDeviceInfoInterface(event) {
     const switchInput = document.getElementById("deviceSwitch");
     const switchLabel = document.getElementById("switchLabel");
 
-    
-    
-
     if (switchInput && switchLabel) {
         switchInput.addEventListener("change", () => {
-            toggleSwitchLabel(switchInput, switchLabel, deviceName);
             toggleDevice(box.id);
         });
     }
 }
 
-
-    // box.onclick = function() { 
-    //     grid.removeChild(box); 
-    //     removeDeviceFromLocalStorage(name);
-    // };
-    // grid.insertBefore(box, grid.lastElementChild);
- 
-    // saveDeviceToLocalStorage(name);
-
-function toggleSwitchLabel(switchElement, labelElement, deviceName) {
+function toggleSwitchLabel(switchElement, labelElement, deviceName, deviceId) {
     if (!switchElement || !labelElement) return; 
 
     labelElement.style.opacity = 0; 
+    let status;
+    for (let d of householdDevices) {
+        if (d.deviceId == deviceId) {
+            status = d.status;
+            break;
+        }
+    }
 
-    // let device;
-    // for (let d of householdDevices) {
-    //     if (d.deviceId == deviceId) {
-    //         device = d;
-    //         break;
-    //     }
-    // }
-    // console.log(device);
-    let statechange = document.getElementById(deviceName+"state");
     setTimeout(() => {
-        if(switchElement.checked==true){
-            labelElement.innerText = `${deviceName} is on`;
-            statechange.innerText = "On";
-        }
-        else{
-            labelElement.innerText = `${deviceName} is off`;
-            statechange.innerText="Off";
-        }
+        labelElement.innerText = status
+            ? `${deviceName} is on` 
+            : `${deviceName} is off`;
         labelElement.style.opacity = 1;
     }, 300);
 }

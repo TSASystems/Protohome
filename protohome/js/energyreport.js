@@ -11,7 +11,7 @@ var hoursArray = ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00",
 var highestEnergy = 0;
 var highestHour = 0;
 
-for (let i = 0; i < randomData.length; i++) {
+for (let i = 1; i < randomData.length; i++) {
     if (randomData[i] > highestEnergy) {
         highestEnergy = randomData[i];
         highestHour = hoursArray[i];
@@ -119,40 +119,12 @@ window.addEventListener("resize", function() {
 });
 
 
-let dailySavings = (Math.random() * 2 + 1).toFixed(2); 
-
-
-var dailySavingsText = document.querySelector(".dailyEnergySavedContainer h2");
-
-dailySavingsText.textContent =  (" £ " + dailySavings);
-
-
-
 // Weekly Report
 var weeklyChart = document.getElementById('weeklyLineChart');
 
 
 
 var weeklyRandomData = Array.from({ length: 7 }, () => Math.floor(Math.random() * 700) + 1);
-
-
-let weeklyCostText = document.querySelector(".weeklySavingsContainer h2");
-  weeklyCost = dailyCost * 7 ;
-
-  weeklyCost = weeklyCost.toFixed(2);
-
-weeklyCostText.textContent =( " £ " + weeklyCost);
-
-
-
-
-
-
-
-
-
-
-
 
 
 var weeklyChartData = {
@@ -211,56 +183,5 @@ function weeklyChartResize(currentType) {
 window.addEventListener("resize", function() {
     weeklyChartResize(weeklyChart.config.type);
 });
-
-
-var highestWeeklyEnergy = 0;
-var highestDay = "";
-
-for (let i = 0; i < weeklyRandomData.length; i++) {
-    if (weeklyRandomData[i] > highestWeeklyEnergy) {
-        highestWeeklyEnergy = weeklyRandomData[i];
-        highestDay = weeklyChartData.labels[i]; 
-    }
-}
-
-console.log("Highest energy usage:", highestWeeklyEnergy, "W on", highestDay);
-
-
-let highestWeeklyUsageText = document.querySelector(".highestWeeklyDayContainer h2");
-if (highestWeeklyUsageText) {
-    highestWeeklyUsageText.textContent = highestWeeklyEnergy + " W on " + highestDay;
-}
-
-
-
-
-
-var lowestWeeklyEnergy = highestWeeklyEnergy;
-var lowestDay = "";
-
-for (let i = 0; i < weeklyRandomData.length; i++) {
-    if (weeklyRandomData[i] < lowestWeeklyEnergy) {
-        lowestWeeklyEnergy = weeklyRandomData[i];
-        lowestDay = weeklyChartData.labels[i]; 
-    }
-}
-
-console.log("Lowest energy usage:", lowestWeeklyEnergy, "W on", lowestDay);
-
-
-let lowestWeeklyUsageText = document.querySelector(".lowestWeeklyDayContainer h2");
-if (lowestWeeklyUsageText) {
-    lowestWeeklyUsageText.textContent = lowestWeeklyEnergy + " W on " + lowestDay;
-}
-
-let weeklySavings = (dailySavings * 7).toFixed(2);
-
-
-
-
-var weeklySavingsText = document.querySelector(".weeklyEnergySavedContainer h2");
-
-weeklySavingsText.textContent =  (" £ " + weeklySavings);
-
 
 
