@@ -134,12 +134,12 @@ const server = http.createServer((req, res) => {
                         });
                     break;
                 case "/API/deleteAccount":
-                    deleteAccount(reqBody.emailAddress, reqBody.username, reqBody.password)
+                    deleteAccount(reqBody.emailOrUsername, reqBody.password, reqBody.usernameHash, reqBody.authId)
                         .then(r => {
                             if (r) {
-                                res,writeHead(200);
+                                res.writeHead(200);
                             } else {
-                                res.writeHead(409);
+                                res.writeHead(500);
                             }
                             res.end();
                         });
@@ -190,7 +190,7 @@ const server = http.createServer((req, res) => {
                         });
                     break;
                 case "/API/getHouseholdDevices":
-                    getHouseholdDevices(reqBody.householdId)
+                    getHouseholdDevices(reqBody.householdId, reqBody.username, reqBody.authId)
                         .then(r => {
                             if (r.length > 0) {
                                 res.writeHead(200);
@@ -233,8 +233,8 @@ const server = http.createServer((req, res) => {
                             } else {
                                 res.writeHead(500);
                             }
+                            res.end();
                         });
-                    res.end();
                     break;
                 case "/API/getHouseholdUsers":
                     getHouseholdUsers(reqBody.username, reqBody.authId)
@@ -332,7 +332,7 @@ async function createAccount(username, password, emailAddress, dob, address, fir
 
         let salt = crypto.randomBytes(8).toString("hex");
         let passwordHash = crypto.createHash("sha256").update(password).update(salt).digest("hex");
-        await connection.query("INSERT INTO UserCredentials (username, passwordHash, salt, emailAddress, dateOfBirth, address, firstName, lastName) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", [username, passwordHash, salt, emailAddress, dob, address, firstName, lastName]);
+        await connection.query("INSERT INTO UserCredentials (username, passwordHash, salt, emailAddress, dateOfBirth, address, firstName, lastName) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", [username, passwordHash, salt, emailAddress||"NULL", dob||"NULL", address||"NULL", firstName||"NULL", lastName||"NULL"]);
         return true;
     } catch(err) {
         console.error(err);
@@ -441,7 +441,9 @@ async function removeDevice(deviceId, householdId) {
     }
 }
 
-async function getHouseholdDevices(householdId) {
+async function getHouseholdDevices(householdId, usernameHash, authId) {
+    if (!authIds.has(usernameHash) || !authIds.get(usernameHash).has(authId))
+        return [];
     let connection;
     try {
         connection = await pool.getConnection();
@@ -483,7 +485,7 @@ async function getHouseholdUsers(usernameHash, authId) {
 
         let rows = await connection.query(`SELECT b.householdId, c.householdName, a.username, b.userType FROM UserCredentials AS a INNER JOIN HouseholdMembers AS b ON a.userId = b.userId
                                             INNER JOIN Households AS c ON b.householdId = c.householdId
-                                            WHERE EXISTS (SELECT COUNT(*) FROM HouseholdMembers WHERE userId = ?)
+                                            WHERE b.userId = ?
                                             ORDER BY b.householdId ASC, userType DESC, username ASC;`, [uid]);
         let households = [];
         let i = 0;
@@ -498,6 +500,37 @@ async function getHouseholdUsers(usernameHash, authId) {
         }
         
         return households;
+    } catch (err) {
+        console.error(err);
+        return [];
+    } finally {
+        connection.end();
+    }
+}
+
+async function getUserHouseholds(usernameHash, authId) {
+    if (!authIds.has(usernameHash) || !authIds.get(usernameHash).has(authId))
+        return [];
+
+    let connection;
+    try {
+        connection = await pool.getConnection();
+
+        let uns = await connection.query("SELECT userId, username FROM UserCredentials");
+        let uid = -1;
+        for (let e of uns) {
+            let hashedUn = crypto.createHash("sha256").update(e.username).digest("hex");
+            if (usernameHash === hashedUn) {
+                uid = e.userId;
+                break;
+            }
+        }
+        if (uid === -1)
+            return [];
+
+        let rows = await connection.query("SELECT a.householdId, a.householdName FROM Households AS a INNER JOIN HouseholdMembers ON a.householdId = b.householdId WHERE b.userId = ?", [uid]);
+        
+        return rows;
     } catch (err) {
         console.error(err);
         return [];
@@ -526,7 +559,7 @@ async function toggleDevice(deviceId, householdId, authId, usernameHash) {
         }
         let rows = await connection.query("SELECT status FROM Devices WHERE deviceId = ?", [deviceId]);
         
-        let res = await connection.query("UPDATE Devices SET status = ? WHERE deviceId = ? AND householdId = ? AND EXISTS (SELECT COUNT(*) FROM HouseholdMembers WHERE householdId = ? AND userId = ?)", [(rows[0].status === "on")? "off" : "on", deviceId, householdId, householdId, uid]);
+        let res = await connection.query("UPDATE Devices SET status = ? WHERE deviceId = ? AND householdId = ? AND EXISTS (SELECT * FROM HouseholdMembers WHERE householdId = ? AND userId = ?)", [(rows[0].status === "on")? "off" : "on", deviceId, householdId, householdId, uid]);
         
         return res.affectedRows > 0;
     } catch (err) {
@@ -568,6 +601,35 @@ async function getUsername(emailOrUsername) {
     }
 }
 
+async function deleteAccount(emailOrUsername, password, usernameHash, authId) {
+    if (!loginWithToken(authId, usernameHash)) {
+        return false;
+    }
+
+    emailOrUsername = emailOrUsername.toLowerCase();
+    let connection;
+    let salt = "";
+    try {
+        connection = await pool.getConnection();
+        let rows = await connection.query("SELECT salt, username FROM UserCredentials WHERE LOWER(username) = ? OR LOWER(emailAddress) = ?;", [emailOrUsername, emailOrUsername]);
+        if (rows.length === 0) {
+            return false;
+        }
+        if (usernameHash !== crypto.createHash("sha256").update(rows[0].username).digest("hex"))
+            return false;
+        salt = rows[0].salt;
+        let passwordHash = crypto.createHash("sha256").update(password).update(salt).digest("hex");
+        rows = await connection.query("DELETE FROM UserCredentials WHERE (LOWER(username) = ? OR LOWER(emailAddress) = ?) AND passwordHash = ?;", [emailOrUsername, emailOrUsername, passwordHash]);
+
+        return rows.affectedRows > 0;
+    } catch (err) {
+        console.error(err);
+        return false;
+    } finally {
+        connection.end();
+    }
+}
+
 async function getUserHouseholds(usernameHash, authId) {
     if (!loginWithToken(authId, usernameHash)) {
         return [];
@@ -582,7 +644,6 @@ async function getUserHouseholds(usernameHash, authId) {
             let hashedUn = crypto.createHash("sha256").update(e.username).digest("hex");
             if (usernameHash === hashedUn) {
                 uid = e.userId;
-                console.log(uid);
                 break;
             }
         }
@@ -755,7 +816,7 @@ async function scheduleDevice(usernameHash, authId, deviceId, onTime, offTime) {
         }
 
         let res = await connection.query(`UPDATE Devices SET offTime = ?, onTime = ? WHERE deviceId = ? AND EXISTS (
-                                          SELECT COUNT(*) FROM Devices AS a INNER JOIN HouseholdMembers AS b 
+                                          SELECT * FROM Devices AS a INNER JOIN HouseholdMembers AS b 
                                           ON a.householdId = b.householdId WHERE deviceId = ? AND userId = ?)`, [offTime, onTime, deviceId, deviceId, uid]);
 
         return (res.affectedRows > 0)? 1 : 0;
@@ -790,7 +851,7 @@ async function removeSchedule(usernameHash, authId, deviceId) {
         }
 
         let res = await connection.query(`UPDATE Devices SET offTime = NULL, onTime = NULL WHERE deviceId = ? AND EXISTS (
-                                          SELECT COUNT(*) FROM Devices AS a INNER JOIN HouseholdMembers AS b 
+                                          SELECT * FROM Devices AS a INNER JOIN HouseholdMembers AS b 
                                           ON a.householdId = b.householdId WHERE deviceId = ? AND userId = ?)`, [deviceId, deviceId, uid]);
 
         return (res.affectedRows > 0)? 1 : 0;
